@@ -1,0 +1,21 @@
+---
+title: "Introduction to R basics "
+date: "`r Sys.Date()`"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    default_style: "dark"
+    downcute_theme: "default"
+    toc: 5
+---
+
+# Head1
+## subhead1
+## subhead2
+# Head2
+
+```{r setup, include=FALSE}
+## Global options
+knitr::opts_chunk$set(cache = TRUE)
+```
+
