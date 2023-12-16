@@ -1,12 +1,10 @@
 # Data Science and Machine Learning in R
 
-<p align="center">
+<img src="logo.png" alt="Data Science and ML in R" style="width:250px;"/>
 
-<img src="logo.png" alt="Data Science and ML in R" style="width:2.5in;"/>
+A repository having all data science concepts programmed in R.\
 
-</p>
-
-A repository having all data science concepts programmed in R. \## Motivation:
+## Motivation:
 
 To have a proper documentation of the concepts learnt in the bootcamp course [Data Science and Machine Learning in R](https://www.udemy.com/share/1013iK3@hTk-7-Jygy4pbf1ehQxT3MdHt_gGbgvtJ2Ja3p9HGrQSOcz6TMBW-4lnY-xmZvSymg==/).
 
