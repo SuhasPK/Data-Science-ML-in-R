@@ -1,6 +1,10 @@
 # Data Science and Machine Learning in R
 
-![Repository logo](logo.png){width="5in"}
+<p align="center">
+
+<img src="logo.png" alt="Data Science and ML in R" style="width:2.5in;"/>
+
+</p>
 
 A repository having all data science concepts programmed in R. \## Motivation:
 
