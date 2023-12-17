@@ -1,5 +1,6 @@
 ---
 title: "Introduction to R basics "
+author: "Suhas. P. K"
 date: "`r Sys.Date()`"
 output:
   rmdformats::downcute:
@@ -9,13 +10,78 @@ output:
     toc: 5
 ---
 
-# Head1
-## subhead1
-## subhead2
-# Head2
-
 ```{r setup, include=FALSE}
 ## Global options
 knitr::opts_chunk$set(cache = TRUE)
 ```
 
+## Arithmetic in R
+
+Arithmetic is the fundamental of mathematics that includes the operations of numbers. These operations are addition, subtraction, multiplication and division. Here, the order of operation is followed. Parenthesis should be used to specify the order of operation.
+
+### Addition
+
+```{r Addition, warning=FALSE, message=FALSE}
+
+# Addition
+
+100 + 11
+
+21 + 3.1415
+```
+
+### Subtraction
+
+```{r Subtraction, warning=FALSE, message=FALSE}
+
+# Sbutraction
+
+3.1415 - 2.38
+
+23 - 101
+```
+
+### Multiplication
+
+```{r Multiplication, warning=FALSE, message=FALSE}
+
+# Multiplication
+
+100 * 11
+
+-2.38 * 3.1415
+```
+
+### Division
+
+```{r Division, warning=FALSE, message=FALSE}
+
+# Division
+
+22/7
+
+-123/2.38 
+```
+
+### Order of Operations
+
+-   This is given by *parentheses, exponents, multiplication and division from left to right, and addition and subtraction from left to right*.
+
+```{r Order of Operation, message=FALSE, warning=FALSE}
+
+100*2+50/3
+
+100*(2+50)/3
+```
+
+### Modulo operation
+
+-   Returns the *remainder* of a division. `%%` is used to find the *remainder*.
+- This can be used to find if the number is even, odd or if a number is divisible by certin number.
+
+```{r modulo,message=FALSE,warning=FALSE}
+5 %% 2
+
+10 %% 8
+
+```
