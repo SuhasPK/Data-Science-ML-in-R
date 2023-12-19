@@ -47,42 +47,194 @@ By re-evaluating the strategies that produce wins on the field, the 2002 Athleti
 
 Because of the team's smaller revenues, Oakland is forced to find players undervalued by the market, and their system for finding value in undervalued players has proven itself thus far. This approach brought the A's to the playoffs in 2002 and 2003.
 
-In this project we'll work with some data and with the goal of trying to find replacement players for the ones lost at the start of the off-season - During the 2001–02 offseason, the team lost three key free agents to larger market teams: 2000 AL MVP Jason Giambi to the New York Yankees, outfielder Johnny Damon to the Boston Red Sox, and closer Jason Isringhausen to the St. Louis Cardinals.
+In this project we'll work with some data and with the goal of trying to find replacement players for the ones lost at the start of the off-season - During the 2001--02 offseason, the team lost three key free agents to larger market teams: 2000 AL MVP Jason Giambi to the New York Yankees, outfielder Johnny Damon to the Boston Red Sox, and closer Jason Isringhausen to the St. Louis Cardinals.
 
 The main goal of this project is for you to feel comfortable working with R on real data to try and derive actionable insights!
 
 #### Data
 
-The data was downloaded from Sean Lahaman's Website, which is not accessible now. This website was a very useful source for baseball statistics.
-The documentation for the csv files is located in the readme2013.txt file. You may need to reference this to understand what acronyms stand for.
-**Use R to open the Batting.csv file and assign it to a data frame called batting using** `read.csv()`.
+The data was downloaded from Sean Lahaman's Website, which is not accessible now. This website was a very useful source for baseball statistics. The documentation for the csv files is located in the readme2013.txt file. You may need to reference this to understand what acronyms stand for. **Use R to open the Batting.csv file and assign it to a data frame called batting using** `read.csv()`.
 
 ```{r read Batting.csv}
 batting <- read.csv('Batting.csv')
 ```
 
-**Use** `head()` **to check out the batting.** 
+**Use** `head()` **to check out the batting.**
+
 ```{r see Batting.csv}
 head(batting)
 ```
 
-**Use** `str()` **to check the structure. Pay close attention to how columns that start with a number get an 'X' in front of them! You'll need to know this to call those columns!** 
+**Use** `str()` **to check the structure. Pay close attention to how columns that start with a number get an 'X' in front of them! You'll need to know this to call those columns!**
+
 ```{r str Batting.csv}
 str(batting)
 ```
 
+To access a certain column `$`can be used.
 
+```{r $ usage}
+head(batting$AB)
+```
 
+#### Feature Engineering
 
+We need to add three more statistics that were used in Moneyball! These are: - Batting Average - On Base Percentage - Slugging Percentage
 
+Click on the links provide and search the wiki page for the formula for creating the new statistics!
 
+For example, for Batting Average, you will need to scroll down until you see: $$AVG = \frac{H}{AB}$$ Which means that the Batting Average is equal to H (Hits) divided by AB (At Base). So we'll do the following to create a new column called **BA** and add it to our data frame:
 
+```{r batting average1}
 
+batting$BA <- batting$H / batting$AB
+```
 
+After doing this operation, check the last 5 entries of the BA column of your data frame and it should look like this:
 
+```{r batting average2}
+tail(batting$BA, 5)
+```
 
+On Base Percentage (OBP) and Slugging Percentage (SLG). Hint: For SLG, you need 1B (Singles), this isn't in your data frame. However you can calculate it by subtracting doubles,triples, and home runs from total hits $(H): 1B = H-2B-3B-HR$ - Create an OBP Column. - Create an SLG Column.
 
+```{r base percentage}
+# On Base Percentage
+batting$OBP <- (batting$H + batting$BB + batting$HBP)/(batting$AB + batting$BB + batting$HBP + batting$SF)
 
+# Creating X1B (Singles)
+batting$X1B <- batting$H - batting$X2B - batting$X3B - batting$HR
+
+# Creating Slugging Average (SLG)
+batting$SLG <- ((1 * batting$X1B) + (2 * batting$X2B) + (3 * batting$X3B) + (4 * batting$HR) ) / batting$AB
+```
+
+**Check the structure of your data frame using** `str()`.
+
+```{r}
+str(batting)
+```
+
+#### Merging Salary Data with Batting Data
+
+We know we don't just want the best players, we want the most *undervalued* players, meaning we will also need to know current salary information! We have salary information in the csv file 'Salaries.csv'.
+
+**Load the Salaries.csv file into a data frame called `sal` using read.csv**.
+
+```{r read salary data}
+sal <- read.csv('Salaries.csv')
+```
+
+Use summary to get a summary of the batting data frame and notice the minimum year in the *yearID* column. Our batting data goes back to 1871! Our salary data starts at 1985, meaning we need to remove the batting data that occurred before 1985.
+
+Use `subset()` to reassign batting to only contain data from 1985 and onwards.
+
+```{r batting summary1}
+summary(batting)
+```
+
+```{r batting after 1985 }
+batting <- subset(batting,yearID >= 1985)
+```
+
+```{r batting summary2}
+summary(batting)
+```
+
+Now it is time to merge the batting data with the salary data! Since we have players playing multiple years, we'll have repetitions of playerIDs for multiple years, meaning we want to merge on both players and years.
+
+Use the `merge()` function to merge the batting and sal data frames by `c('playerID','yearID')`. Call the new data frame `combo`.
+
+```{r combo}
+combo <- merge(batting,sal,by=c('playerID','yearID'))
+
+```
+
+```{r combo summary}
+summary(combo)
+```
+
+#### Analyzing the Lost Players
+
+As previously mentioned, the Oakland A's lost 3 key players during the off-season. We'll want to get their stats to see what we have to replace. The players lost were: first baseman 2000 AL MVP Jason Giambi (giambja01) to the New York Yankees, outfielder Johnny Damon (damonjo01) to the Boston Red Sox and infielder Rainer Gustavo "Ray" Olmedo ('saenzol01').
+
+Use the `subset()` function to get a data frame called `lost_players` from the `combo` data frame consisting of those 3 players. Hint: Try to figure out how to use `%in%` to avoid a bunch of or statements!
+
+```{r lost player1}
+lost_players <- subset(combo,playerID %in% c('giambja01','damonjo01','saenzol01') )
+
+head(lost_players,6)
+```
+
+Since all these players were lost in after 2001 in the offseason, let's only concern ourselves with the data from 2001.
+
+**Use `subset()` again to only grab the rows where the `yearID` was 2001.**
+
+```{r lost_player2}
+lost_players <- subset(lost_players,yearID == 2001)
+```
+
+**Reduce the lost_players data frame to the following columns: `playerID,H,X2B,X3B,HR,OBP,SLG,BA,AB`**.
+
+```{r lost_players3}
+lost_players <- lost_players[,c('playerID','H','X2B','X3B','HR','OBP','SLG','BA','AB')]
+
+head(lost_players)
+```
+
+#### Replacement Players
+
+Now we have all the information we need! Here is your final task - Find Replacement Players for the key three players we lost! However, you have three constraints: - The total combined salary of the three players can not exceed 15 million dollars. - Their combined number of At Bats (AB) needs to be equal to or greater than the lost players. - Their mean OBP had to equal to or greater than the mean OBP of the lost players.
+
+**Use the combo dataframe you previously created as the source of information! Remember to just use the 2001 subset of that dataframe. There's lost of different ways you can do this, so be creative! It should be relatively simple to find 3 players that satisfy the requirements, note that there are many correct combinations available!**
+
+#### Example Solution
+
+**Note: There are lots of correct answers and ways to solve this!**
+
+```{r libraries, message=FALSE,warning=FALSE}
+if (!require(dplyr)){ install.packages("dplyr")
+  library(dplyr)}
+
+if (!require(ggplot2)) {install.packages("ggplot2")
+  library(ggplot2)}
+```
+
+First only grab available players from year 2001.
+
+```{r available players}
+
+available_players <- filter(combo, yearID ==2001)
+
+head(available_players,7)
+```
+
+#### Initial Visualization
+
+```{r visualization}
+ggplot(available_players,aes(x=OBP,y=salary)) + geom_point()
+```
+
+Looks like there is no point in paying above 8 million or so (I'm just eyeballing this number). I'll choose that as a cut off point. There are also a lot of players with OBP==0. Let's get rid of them too.
+
+```{r}
+available_players <- filter(available_players,salary<8000000,OBP>0)
+```
+
+The total AB of the lost players is 1469. This is about 1500, meaning I should probably cut off my `available_players` at 1500/3= 500 AB. 
+
+```{r}
+available_players <- filter(available_players,AB >= 500)
+```
+Now let's sort by OBP and see what we've got! 
+
+```{r}
+possible <- arrange(available_players, desc(OBP))
+
+possible <- possible[,c('playerID','OBP','AB','salary')]
+
+head(possible)
+```
 
 
 

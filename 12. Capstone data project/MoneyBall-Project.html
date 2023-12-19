@@ -1497,6 +1497,15 @@ margin-left: 0 !important;
             <li><a href="#the-2002-oakland-as" id="toc-the-2002-oakland-as">The 2002 Oakland A’s</a></li>
             <li><a href="#moneyball-book" id="toc-moneyball-book">Moneyball Book</a></li>
             <li><a href="#data" id="toc-data">Data</a></li>
+            <li><a href="#feature-engineering" id="toc-feature-engineering">Feature Engineering</a></li>
+            <li><a href="#merging-salary-data-with-batting-data" id="toc-merging-salary-data-with-batting-data">Merging
+            Salary Data with Batting Data</a></li>
+            <li><a href="#analyzing-the-lost-players" id="toc-analyzing-the-lost-players">Analyzing the Lost
+            Players</a></li>
+            <li><a href="#replacement-players" id="toc-replacement-players">Replacement Players</a></li>
+            <li><a href="#example-solution" id="toc-example-solution">Example Solution</a></li>
+            <li><a href="#initial-visualization" id="toc-initial-visualization">Initial
+            Visualization</a></li>
             </ul></li>
             </ul></li>
             </ul>
@@ -1653,6 +1662,408 @@ columns!</strong></p>
 ##  $ SF       : int  0 0 0 0 0 0 NA 4 4 7 ...
 ##  $ GIDP     : int  0 0 0 0 0 0 NA 13 20 21 ...
 ##  $ G_old    : int  11 45 2 5 NA NA NA 122 153 153 ...</code></pre>
+<p>To access a certain column <code>$</code>can be used.</p>
+<pre class="r"><code>head(batting$AB)</code></pre>
+<pre><code>## [1] 0 2 0 1 0 0</code></pre>
+</div>
+<div id="feature-engineering" class="section level4">
+<h4>Feature Engineering</h4>
+<p>We need to add three more statistics that were used in Moneyball!
+These are: - Batting Average - On Base Percentage - Slugging
+Percentage</p>
+<p>Click on the links provide and search the wiki page for the formula
+for creating the new statistics!</p>
+<p>For example, for Batting Average, you will need to scroll down until
+you see: <span class="math display">\[AVG = \frac{H}{AB}\]</span> Which
+means that the Batting Average is equal to H (Hits) divided by AB (At
+Base). So we’ll do the following to create a new column called
+<strong>BA</strong> and add it to our data frame:</p>
+<pre class="r"><code>batting$BA &lt;- batting$H / batting$AB</code></pre>
+<p>After doing this operation, check the last 5 entries of the BA column
+of your data frame and it should look like this:</p>
+<pre class="r"><code>tail(batting$BA, 5)</code></pre>
+<pre><code>## [1] 0.1230769 0.2746479 0.1470588 0.2745098 0.2138728</code></pre>
+<p>On Base Percentage (OBP) and Slugging Percentage (SLG). Hint: For
+SLG, you need 1B (Singles), this isn’t in your data frame. However you
+can calculate it by subtracting doubles,triples, and home runs from
+total hits <span class="math inline">\((H): 1B = H-2B-3B-HR\)</span> -
+Create an OBP Column. - Create an SLG Column.</p>
+<pre class="r"><code># On Base Percentage
+batting$OBP &lt;- (batting$H + batting$BB + batting$HBP)/(batting$AB + batting$BB + batting$HBP + batting$SF)
+
+# Creating X1B (Singles)
+batting$X1B &lt;- batting$H - batting$X2B - batting$X3B - batting$HR
+
+# Creating Slugging Average (SLG)
+batting$SLG &lt;- ((1 * batting$X1B) + (2 * batting$X2B) + (3 * batting$X3B) + (4 * batting$HR) ) / batting$AB</code></pre>
+<p><strong>Check the structure of your data frame using</strong>
+<code>str()</code>.</p>
+<pre class="r"><code>str(batting)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    97889 obs. of  28 variables:
+##  $ playerID : chr  &quot;aardsda01&quot; &quot;aardsda01&quot; &quot;aardsda01&quot; &quot;aardsda01&quot; ...
+##  $ yearID   : int  2004 2006 2007 2008 2009 2010 2012 1954 1955 1956 ...
+##  $ stint    : int  1 1 1 1 1 1 1 1 1 1 ...
+##  $ teamID   : chr  &quot;SFN&quot; &quot;CHN&quot; &quot;CHA&quot; &quot;BOS&quot; ...
+##  $ lgID     : chr  &quot;NL&quot; &quot;NL&quot; &quot;AL&quot; &quot;AL&quot; ...
+##  $ G        : int  11 45 25 47 73 53 1 122 153 153 ...
+##  $ G_batting: int  11 43 2 5 3 4 NA 122 153 153 ...
+##  $ AB       : int  0 2 0 1 0 0 NA 468 602 609 ...
+##  $ R        : int  0 0 0 0 0 0 NA 58 105 106 ...
+##  $ H        : int  0 0 0 0 0 0 NA 131 189 200 ...
+##  $ X2B      : int  0 0 0 0 0 0 NA 27 37 34 ...
+##  $ X3B      : int  0 0 0 0 0 0 NA 6 9 14 ...
+##  $ HR       : int  0 0 0 0 0 0 NA 13 27 26 ...
+##  $ RBI      : int  0 0 0 0 0 0 NA 69 106 92 ...
+##  $ SB       : int  0 0 0 0 0 0 NA 2 3 2 ...
+##  $ CS       : int  0 0 0 0 0 0 NA 2 1 4 ...
+##  $ BB       : int  0 0 0 0 0 0 NA 28 49 37 ...
+##  $ SO       : int  0 0 0 1 0 0 NA 39 61 54 ...
+##  $ IBB      : int  0 0 0 0 0 0 NA NA 5 6 ...
+##  $ HBP      : int  0 0 0 0 0 0 NA 3 3 2 ...
+##  $ SH       : int  0 1 0 0 0 0 NA 6 7 5 ...
+##  $ SF       : int  0 0 0 0 0 0 NA 4 4 7 ...
+##  $ GIDP     : int  0 0 0 0 0 0 NA 13 20 21 ...
+##  $ G_old    : int  11 45 2 5 NA NA NA 122 153 153 ...
+##  $ BA       : num  NaN 0 NaN 0 NaN ...
+##  $ OBP      : num  NaN 0 NaN 0 NaN ...
+##  $ X1B      : int  0 0 0 0 0 0 NA 85 116 126 ...
+##  $ SLG      : num  NaN 0 NaN 0 NaN ...</code></pre>
+</div>
+<div id="merging-salary-data-with-batting-data" class="section level4">
+<h4>Merging Salary Data with Batting Data</h4>
+<p>We know we don’t just want the best players, we want the most
+<em>undervalued</em> players, meaning we will also need to know current
+salary information! We have salary information in the csv file
+‘Salaries.csv’.</p>
+<p><strong>Load the Salaries.csv file into a data frame called
+<code>sal</code> using read.csv</strong>.</p>
+<pre class="r"><code>sal &lt;- read.csv(&#39;Salaries.csv&#39;)</code></pre>
+<p>Use summary to get a summary of the batting data frame and notice the
+minimum year in the <em>yearID</em> column. Our batting data goes back
+to 1871! Our salary data starts at 1985, meaning we need to remove the
+batting data that occurred before 1985.</p>
+<p>Use <code>subset()</code> to reassign batting to only contain data
+from 1985 and onwards.</p>
+<pre class="r"><code>summary(batting)</code></pre>
+<pre><code>##    playerID             yearID         stint          teamID         
+##  Length:97889       Min.   :1871   Min.   :1.000   Length:97889      
+##  Class :character   1st Qu.:1931   1st Qu.:1.000   Class :character  
+##  Mode  :character   Median :1970   Median :1.000   Mode  :character  
+##                     Mean   :1962   Mean   :1.077                     
+##                     3rd Qu.:1995   3rd Qu.:1.000                     
+##                     Max.   :2013   Max.   :5.000                     
+##                                                                      
+##      lgID                 G            G_batting            AB       
+##  Length:97889       Min.   :  1.00   Min.   :  0.00   Min.   :  0.0  
+##  Class :character   1st Qu.: 13.00   1st Qu.:  7.00   1st Qu.:  9.0  
+##  Mode  :character   Median : 35.00   Median : 32.00   Median : 61.0  
+##                     Mean   : 51.65   Mean   : 49.13   Mean   :154.1  
+##                     3rd Qu.: 81.00   3rd Qu.: 81.00   3rd Qu.:260.0  
+##                     Max.   :165.00   Max.   :165.00   Max.   :716.0  
+##                                      NA&#39;s   :1406     NA&#39;s   :6413   
+##        R                H               X2B            X3B        
+##  Min.   :  0.00   Min.   :  0.00   Min.   : 0.0   Min.   : 0.000  
+##  1st Qu.:  0.00   1st Qu.:  1.00   1st Qu.: 0.0   1st Qu.: 0.000  
+##  Median :  5.00   Median : 12.00   Median : 2.0   Median : 0.000  
+##  Mean   : 20.47   Mean   : 40.37   Mean   : 6.8   Mean   : 1.424  
+##  3rd Qu.: 31.00   3rd Qu.: 66.00   3rd Qu.:10.0   3rd Qu.: 2.000  
+##  Max.   :192.00   Max.   :262.00   Max.   :67.0   Max.   :36.000  
+##  NA&#39;s   :6413     NA&#39;s   :6413     NA&#39;s   :6413   NA&#39;s   :6413    
+##        HR              RBI               SB                CS        
+##  Min.   : 0.000   Min.   :  0.00   Min.   :  0.000   Min.   : 0.000  
+##  1st Qu.: 0.000   1st Qu.:  0.00   1st Qu.:  0.000   1st Qu.: 0.000  
+##  Median : 0.000   Median :  5.00   Median :  0.000   Median : 0.000  
+##  Mean   : 3.002   Mean   : 18.47   Mean   :  3.265   Mean   : 1.385  
+##  3rd Qu.: 3.000   3rd Qu.: 28.00   3rd Qu.:  2.000   3rd Qu.: 1.000  
+##  Max.   :73.000   Max.   :191.00   Max.   :138.000   Max.   :42.000  
+##  NA&#39;s   :6413     NA&#39;s   :6837     NA&#39;s   :7713      NA&#39;s   :29867   
+##        BB               SO              IBB              HBP        
+##  Min.   :  0.00   Min.   :  0.00   Min.   :  0.00   Min.   : 0.000  
+##  1st Qu.:  0.00   1st Qu.:  2.00   1st Qu.:  0.00   1st Qu.: 0.000  
+##  Median :  4.00   Median : 11.00   Median :  0.00   Median : 0.000  
+##  Mean   : 14.21   Mean   : 21.95   Mean   :  1.28   Mean   : 1.136  
+##  3rd Qu.: 21.00   3rd Qu.: 31.00   3rd Qu.:  1.00   3rd Qu.: 1.000  
+##  Max.   :232.00   Max.   :223.00   Max.   :120.00   Max.   :51.000  
+##  NA&#39;s   :6413     NA&#39;s   :14251    NA&#39;s   :42977    NA&#39;s   :9233    
+##        SH               SF             GIDP           G_old       
+##  Min.   : 0.000   Min.   : 0.0    Min.   : 0.00   Min.   :  0.00  
+##  1st Qu.: 0.000   1st Qu.: 0.0    1st Qu.: 0.00   1st Qu.: 11.00  
+##  Median : 1.000   Median : 0.0    Median : 1.00   Median : 34.00  
+##  Mean   : 2.564   Mean   : 1.2    Mean   : 3.33   Mean   : 50.99  
+##  3rd Qu.: 3.000   3rd Qu.: 2.0    3rd Qu.: 5.00   3rd Qu.: 82.00  
+##  Max.   :67.000   Max.   :19.0    Max.   :36.00   Max.   :165.00  
+##  NA&#39;s   :12751    NA&#39;s   :42446   NA&#39;s   :32521   NA&#39;s   :5189    
+##        BA             OBP             X1B              SLG       
+##  Min.   :0.000   Min.   :0.00    Min.   :  0.00   Min.   :0.000  
+##  1st Qu.:0.148   1st Qu.:0.19    1st Qu.:  1.00   1st Qu.:0.179  
+##  Median :0.231   Median :0.29    Median :  9.00   Median :0.309  
+##  Mean   :0.209   Mean   :0.26    Mean   : 29.14   Mean   :0.291  
+##  3rd Qu.:0.275   3rd Qu.:0.34    3rd Qu.: 48.00   3rd Qu.:0.397  
+##  Max.   :1.000   Max.   :1.00    Max.   :225.00   Max.   :4.000  
+##  NA&#39;s   :13520   NA&#39;s   :49115   NA&#39;s   :6413     NA&#39;s   :13520</code></pre>
+<pre class="r"><code>batting &lt;- subset(batting,yearID &gt;= 1985)</code></pre>
+<pre class="r"><code>summary(batting)</code></pre>
+<pre><code>##    playerID             yearID         stint         teamID         
+##  Length:35652       Min.   :1985   Min.   :1.00   Length:35652      
+##  Class :character   1st Qu.:1993   1st Qu.:1.00   Class :character  
+##  Mode  :character   Median :2000   Median :1.00   Mode  :character  
+##                     Mean   :2000   Mean   :1.08                     
+##                     3rd Qu.:2007   3rd Qu.:1.00                     
+##                     Max.   :2013   Max.   :4.00                     
+##                                                                     
+##      lgID                 G           G_batting            AB       
+##  Length:35652       Min.   :  1.0   Min.   :  0.00   Min.   :  0.0  
+##  Class :character   1st Qu.: 14.0   1st Qu.:  4.00   1st Qu.:  3.0  
+##  Mode  :character   Median : 34.0   Median : 27.00   Median : 47.0  
+##                     Mean   : 51.7   Mean   : 46.28   Mean   :144.7  
+##                     3rd Qu.: 77.0   3rd Qu.: 77.00   3rd Qu.:241.0  
+##                     Max.   :163.0   Max.   :163.00   Max.   :716.0  
+##                                     NA&#39;s   :1406     NA&#39;s   :4377   
+##        R                H               X2B              X3B        
+##  Min.   :  0.00   Min.   :  0.00   Min.   : 0.000   Min.   : 0.000  
+##  1st Qu.:  0.00   1st Qu.:  0.00   1st Qu.: 0.000   1st Qu.: 0.000  
+##  Median :  4.00   Median :  8.00   Median : 1.000   Median : 0.000  
+##  Mean   : 19.44   Mean   : 37.95   Mean   : 7.293   Mean   : 0.824  
+##  3rd Qu.: 30.00   3rd Qu.: 61.00   3rd Qu.:11.000   3rd Qu.: 1.000  
+##  Max.   :152.00   Max.   :262.00   Max.   :59.000   Max.   :23.000  
+##  NA&#39;s   :4377     NA&#39;s   :4377     NA&#39;s   :4377     NA&#39;s   :4377    
+##        HR              RBI               SB                CS        
+##  Min.   : 0.000   Min.   :  0.00   Min.   :  0.000   Min.   : 0.000  
+##  1st Qu.: 0.000   1st Qu.:  0.00   1st Qu.:  0.000   1st Qu.: 0.000  
+##  Median : 0.000   Median :  3.00   Median :  0.000   Median : 0.000  
+##  Mean   : 4.169   Mean   : 18.41   Mean   :  2.811   Mean   : 1.219  
+##  3rd Qu.: 5.000   3rd Qu.: 27.00   3rd Qu.:  2.000   3rd Qu.: 1.000  
+##  Max.   :73.000   Max.   :165.00   Max.   :110.000   Max.   :29.000  
+##  NA&#39;s   :4377     NA&#39;s   :4377     NA&#39;s   :4377      NA&#39;s   :4377    
+##        BB               SO              IBB               HBP        
+##  Min.   :  0.00   Min.   :  0.00   Min.   :  0.000   Min.   : 0.000  
+##  1st Qu.:  0.00   1st Qu.:  1.00   1st Qu.:  0.000   1st Qu.: 0.000  
+##  Median :  3.00   Median : 12.00   Median :  0.000   Median : 0.000  
+##  Mean   : 14.06   Mean   : 27.03   Mean   :  1.171   Mean   : 1.273  
+##  3rd Qu.: 21.00   3rd Qu.: 42.00   3rd Qu.:  1.000   3rd Qu.: 1.000  
+##  Max.   :232.00   Max.   :223.00   Max.   :120.000   Max.   :35.000  
+##  NA&#39;s   :4377     NA&#39;s   :4377     NA&#39;s   :4378      NA&#39;s   :4387    
+##        SH               SF              GIDP           G_old      
+##  Min.   : 0.000   Min.   : 0.000   Min.   : 0.00   Min.   :  0.0  
+##  1st Qu.: 0.000   1st Qu.: 0.000   1st Qu.: 0.00   1st Qu.: 11.0  
+##  Median : 0.000   Median : 0.000   Median : 1.00   Median : 32.0  
+##  Mean   : 1.465   Mean   : 1.212   Mean   : 3.25   Mean   : 49.7  
+##  3rd Qu.: 2.000   3rd Qu.: 2.000   3rd Qu.: 5.00   3rd Qu.: 77.0  
+##  Max.   :39.000   Max.   :17.000   Max.   :35.00   Max.   :163.0  
+##  NA&#39;s   :4377     NA&#39;s   :4378     NA&#39;s   :4377    NA&#39;s   :5189   
+##        BA             OBP             X1B              SLG       
+##  Min.   :0.000   Min.   :0.000   Min.   :  0.00   Min.   :0.000  
+##  1st Qu.:0.136   1st Qu.:0.188   1st Qu.:  0.00   1st Qu.:0.167  
+##  Median :0.233   Median :0.296   Median :  6.00   Median :0.333  
+##  Mean   :0.205   Mean   :0.262   Mean   : 25.66   Mean   :0.304  
+##  3rd Qu.:0.274   3rd Qu.:0.342   3rd Qu.: 42.00   3rd Qu.:0.423  
+##  Max.   :1.000   Max.   :1.000   Max.   :225.00   Max.   :4.000  
+##  NA&#39;s   :8905    NA&#39;s   :8821    NA&#39;s   :4377     NA&#39;s   :8905</code></pre>
+<p>Now it is time to merge the batting data with the salary data! Since
+we have players playing multiple years, we’ll have repetitions of
+playerIDs for multiple years, meaning we want to merge on both players
+and years.</p>
+<p>Use the <code>merge()</code> function to merge the batting and sal
+data frames by <code>c(&#39;playerID&#39;,&#39;yearID&#39;)</code>. Call the new data
+frame <code>combo</code>.</p>
+<pre class="r"><code>combo &lt;- merge(batting,sal,by=c(&#39;playerID&#39;,&#39;yearID&#39;))</code></pre>
+<pre class="r"><code>summary(combo)</code></pre>
+<pre><code>##    playerID             yearID         stint         teamID.x        
+##  Length:25397       Min.   :1985   Min.   :1.000   Length:25397      
+##  Class :character   1st Qu.:1993   1st Qu.:1.000   Class :character  
+##  Mode  :character   Median :1999   Median :1.000   Mode  :character  
+##                     Mean   :1999   Mean   :1.098                     
+##                     3rd Qu.:2006   3rd Qu.:1.000                     
+##                     Max.   :2013   Max.   :4.000                     
+##                                                                      
+##     lgID.x                G            G_batting            AB       
+##  Length:25397       Min.   :  1.00   Min.   :  0.00   Min.   :  0.0  
+##  Class :character   1st Qu.: 26.00   1st Qu.:  8.00   1st Qu.:  5.0  
+##  Mode  :character   Median : 50.00   Median : 42.00   Median : 85.0  
+##                     Mean   : 64.06   Mean   : 57.58   Mean   :182.4  
+##                     3rd Qu.:101.00   3rd Qu.:101.00   3rd Qu.:336.0  
+##                     Max.   :163.00   Max.   :163.00   Max.   :716.0  
+##                                      NA&#39;s   :906      NA&#39;s   :2661   
+##        R                H               X2B              X3B        
+##  Min.   :  0.00   Min.   :  0.00   Min.   : 0.000   Min.   : 0.000  
+##  1st Qu.:  0.00   1st Qu.:  1.00   1st Qu.: 0.000   1st Qu.: 0.000  
+##  Median :  9.00   Median : 19.00   Median : 3.000   Median : 0.000  
+##  Mean   : 24.71   Mean   : 48.18   Mean   : 9.276   Mean   : 1.033  
+##  3rd Qu.: 43.00   3rd Qu.: 87.25   3rd Qu.:16.000   3rd Qu.: 1.000  
+##  Max.   :152.00   Max.   :262.00   Max.   :59.000   Max.   :23.000  
+##  NA&#39;s   :2661     NA&#39;s   :2661     NA&#39;s   :2661     NA&#39;s   :2661    
+##        HR              RBI               SB                CS       
+##  Min.   : 0.000   Min.   :  0.00   Min.   :  0.000   Min.   : 0.00  
+##  1st Qu.: 0.000   1st Qu.:  0.00   1st Qu.:  0.000   1st Qu.: 0.00  
+##  Median : 1.000   Median :  8.00   Median :  0.000   Median : 0.00  
+##  Mean   : 5.369   Mean   : 23.56   Mean   :  3.568   Mean   : 1.54  
+##  3rd Qu.: 7.000   3rd Qu.: 39.00   3rd Qu.:  3.000   3rd Qu.: 2.00  
+##  Max.   :73.000   Max.   :165.00   Max.   :110.000   Max.   :29.00  
+##  NA&#39;s   :2661     NA&#39;s   :2661     NA&#39;s   :2661      NA&#39;s   :2661   
+##        BB               SO              IBB               HBP        
+##  Min.   :  0.00   Min.   :  0.00   Min.   :  0.000   Min.   : 0.000  
+##  1st Qu.:  0.00   1st Qu.:  2.00   1st Qu.:  0.000   1st Qu.: 0.000  
+##  Median :  6.00   Median : 20.00   Median :  0.000   Median : 0.000  
+##  Mean   : 17.98   Mean   : 33.52   Mean   :  1.533   Mean   : 1.614  
+##  3rd Qu.: 29.00   3rd Qu.: 55.00   3rd Qu.:  2.000   3rd Qu.: 2.000  
+##  Max.   :232.00   Max.   :223.00   Max.   :120.000   Max.   :35.000  
+##  NA&#39;s   :2661     NA&#39;s   :2661     NA&#39;s   :2662      NA&#39;s   :2670    
+##        SH               SF              GIDP            G_old       
+##  Min.   : 0.000   Min.   : 0.000   Min.   : 0.000   Min.   :  0.00  
+##  1st Qu.: 0.000   1st Qu.: 0.000   1st Qu.: 0.000   1st Qu.: 20.00  
+##  Median : 0.000   Median : 0.000   Median : 2.000   Median : 47.00  
+##  Mean   : 1.786   Mean   : 1.554   Mean   : 4.127   Mean   : 61.43  
+##  3rd Qu.: 2.000   3rd Qu.: 2.000   3rd Qu.: 7.000   3rd Qu.:101.00  
+##  Max.   :39.000   Max.   :17.000   Max.   :35.000   Max.   :163.00  
+##  NA&#39;s   :2661     NA&#39;s   :2662     NA&#39;s   :2661     NA&#39;s   :3414    
+##        BA             OBP             X1B             SLG       
+##  Min.   :0.000   Min.   :0.000   Min.   :  0.0   Min.   :0.000  
+##  1st Qu.:0.160   1st Qu.:0.208   1st Qu.:  0.0   1st Qu.:0.200  
+##  Median :0.242   Median :0.305   Median : 13.0   Median :0.351  
+##  Mean   :0.212   Mean   :0.270   Mean   : 32.5   Mean   :0.317  
+##  3rd Qu.:0.276   3rd Qu.:0.346   3rd Qu.: 59.0   3rd Qu.:0.432  
+##  Max.   :1.000   Max.   :1.000   Max.   :225.0   Max.   :4.000  
+##  NA&#39;s   :5618    NA&#39;s   :5562    NA&#39;s   :2661    NA&#39;s   :5618   
+##    teamID.y            lgID.y              salary        
+##  Length:25397       Length:25397       Min.   :       0  
+##  Class :character   Class :character   1st Qu.:  255000  
+##  Mode  :character   Mode  :character   Median :  550000  
+##                                        Mean   : 1879256  
+##                                        3rd Qu.: 2150000  
+##                                        Max.   :33000000  
+## </code></pre>
+</div>
+<div id="analyzing-the-lost-players" class="section level4">
+<h4>Analyzing the Lost Players</h4>
+<p>As previously mentioned, the Oakland A’s lost 3 key players during
+the off-season. We’ll want to get their stats to see what we have to
+replace. The players lost were: first baseman 2000 AL MVP Jason Giambi
+(giambja01) to the New York Yankees, outfielder Johnny Damon (damonjo01)
+to the Boston Red Sox and infielder Rainer Gustavo “Ray” Olmedo
+(‘saenzol01’).</p>
+<p>Use the <code>subset()</code> function to get a data frame called
+<code>lost_players</code> from the <code>combo</code> data frame
+consisting of those 3 players. Hint: Try to figure out how to use
+<code>%in%</code> to avoid a bunch of or statements!</p>
+<pre class="r"><code>lost_players &lt;- subset(combo,playerID %in% c(&#39;giambja01&#39;,&#39;damonjo01&#39;,&#39;saenzol01&#39;) )
+
+head(lost_players,6)</code></pre>
+<pre><code>##       playerID yearID stint teamID.x lgID.x   G G_batting  AB   R   H X2B X3B
+## 5135 damonjo01   1995     1      KCA     AL  47        47 188  32  53  11   5
+## 5136 damonjo01   1996     1      KCA     AL 145       145 517  61 140  22   5
+## 5137 damonjo01   1997     1      KCA     AL 146       146 472  70 130  12   8
+## 5138 damonjo01   1998     1      KCA     AL 161       161 642 104 178  30  10
+## 5139 damonjo01   1999     1      KCA     AL 145       145 583 101 179  39   9
+## 5140 damonjo01   2000     1      KCA     AL 159       159 655 136 214  42  10
+##      HR RBI SB CS BB SO IBB HBP SH SF GIDP G_old        BA       OBP X1B
+## 5135  3  23  7  0 12 22   0   1  2  3    2    47 0.2819149 0.3235294  34
+## 5136  6  50 25  5 31 64   3   3 10  5    4   145 0.2707930 0.3129496 107
+## 5137  8  48 16 10 42 70   2   3  6  1    3   146 0.2754237 0.3378378 102
+## 5138 18  66 26 12 58 84   4   4  3  3    4   161 0.2772586 0.3394625 120
+## 5139 14  77 36  6 67 50   5   3  3  4   13   145 0.3070326 0.3789954 117
+## 5140 16  88 46  9 65 60   4   1  8 12    7   159 0.3267176 0.3819918 146
+##            SLG teamID.y lgID.y  salary
+## 5135 0.4414894      KCA     AL  109000
+## 5136 0.3675048      KCA     AL  180000
+## 5137 0.3855932      KCA     AL  240000
+## 5138 0.4392523      KCA     AL  460000
+## 5139 0.4768439      KCA     AL 2100000
+## 5140 0.4946565      KCA     AL 4000000</code></pre>
+<p>Since all these players were lost in after 2001 in the offseason,
+let’s only concern ourselves with the data from 2001.</p>
+<p><strong>Use <code>subset()</code> again to only grab the rows where
+the <code>yearID</code> was 2001.</strong></p>
+<pre class="r"><code>lost_players &lt;- subset(lost_players,yearID == 2001)</code></pre>
+<p><strong>Reduce the lost_players data frame to the following columns:
+<code>playerID,H,X2B,X3B,HR,OBP,SLG,BA,AB</code></strong>.</p>
+<pre class="r"><code>lost_players &lt;- lost_players[,c(&#39;playerID&#39;,&#39;H&#39;,&#39;X2B&#39;,&#39;X3B&#39;,&#39;HR&#39;,&#39;OBP&#39;,&#39;SLG&#39;,&#39;BA&#39;,&#39;AB&#39;)]
+
+head(lost_players)</code></pre>
+<pre><code>##        playerID   H X2B X3B HR       OBP       SLG        BA  AB
+## 5141  damonjo01 165  34   4  9 0.3235294 0.3633540 0.2562112 644
+## 7878  giambja01 178  47   2 38 0.4769001 0.6596154 0.3423077 520
+## 20114 saenzol01  67  21   1  9 0.2911765 0.3836066 0.2196721 305</code></pre>
+</div>
+<div id="replacement-players" class="section level4">
+<h4>Replacement Players</h4>
+<p>Now we have all the information we need! Here is your final task -
+Find Replacement Players for the key three players we lost! However, you
+have three constraints: - The total combined salary of the three players
+can not exceed 15 million dollars. - Their combined number of At Bats
+(AB) needs to be equal to or greater than the lost players. - Their mean
+OBP had to equal to or greater than the mean OBP of the lost
+players.</p>
+<p><strong>Use the combo dataframe you previously created as the source
+of information! Remember to just use the 2001 subset of that dataframe.
+There’s lost of different ways you can do this, so be creative! It
+should be relatively simple to find 3 players that satisfy the
+requirements, note that there are many correct combinations
+available!</strong></p>
+</div>
+<div id="example-solution" class="section level4">
+<h4>Example Solution</h4>
+<p><strong>Note: There are lots of correct answers and ways to solve
+this!</strong></p>
+<pre class="r"><code>if (!require(dplyr)){ install.packages(&quot;dplyr&quot;)
+  library(dplyr)}
+
+if (!require(ggplot2)) {install.packages(&quot;ggplot2&quot;)
+  library(ggplot2)}</code></pre>
+<p>First only grab available players from year 2001.</p>
+<pre class="r"><code>available_players &lt;- filter(combo, yearID ==2001)
+
+head(available_players,7)</code></pre>
+<pre><code>##    playerID yearID stint teamID.x lgID.x   G G_batting  AB   R   H X2B X3B HR
+## 1 abbotje01   2001     1      FLO     NL  28        28  42   5  11   3   0  0
+## 2 abbotku01   2001     1      ATL     NL   6         6   9   0   2   0   0  0
+## 3 abbotpa01   2001     1      SEA     AL  28         2   4   0   1   0   0  0
+## 4 abreubo01   2001     1      PHI     NL 162       162 588 118 170  48   4 31
+## 5 adamste01   2001     1      LAN     NL  43        41  39   2   2   1   0  0
+## 6 agbaybe01   2001     1      NYN     NL  91        91 296  28  82  14   2  6
+## 7 alfonan01   2001     1      FLO     NL  58        54   0   0   0   0   0  0
+##   RBI SB CS  BB  SO IBB HBP SH SF GIDP G_old         BA       OBP X1B
+## 1   5  0  0   3   7   0   1  0  0    1    28 0.26190476 0.3260870   8
+## 2   0  1  0   0   3   0   0  0  0    0     6 0.22222222 0.2222222   2
+## 3   0  0  0   0   1   0   0  1  0    0     2 0.25000000 0.2500000   1
+## 4 110 36 14 106 137  11   1  0  9   13   162 0.28911565 0.3934659  87
+## 5   1  0  0   3  19   0   0  5  1    0    41 0.05128205 0.1162791   1
+## 6  27  4  5  36  73   0   5  1  1   11    91 0.27702703 0.3639053  60
+## 7   0  0  0   0   0   0   0  0  0    0    54        NaN       NaN   0
+##          SLG teamID.y lgID.y  salary
+## 1 0.33333333      FLO     NL  300000
+## 2 0.22222222      ATL     NL  600000
+## 3 0.25000000      SEA     AL 1700000
+## 4 0.54251701      PHI     NL 4983000
+## 5 0.07692308      LAN     NL 2600000
+## 6 0.39864865      NYN     NL  260000
+## 7        NaN      FLO     NL 2450000</code></pre>
+</div>
+<div id="initial-visualization" class="section level4">
+<h4>Initial Visualization</h4>
+<pre class="r"><code>ggplot(available_players,aes(x=OBP,y=salary)) + geom_point()</code></pre>
+<pre><code>## Warning: Removed 168 rows containing missing values (`geom_point()`).</code></pre>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABgAAAAPACAMAAADE4EJKAAABLFBMVEUAAAAAADoAAGYAOjoAOmYAOpAAZrYzMzM6AAA6OgA6Ojo6OmY6ZmY6ZpA6ZrY6kNtNTU1NTW5NTY5Nbm5Nbo5NbqtNjshmAABmADpmOgBmOjpmOpBmZjpmZmZmZpBmkLZmkNtmtttmtv9uTU1ubk1ubo5ujqtujshuq+SOTU2Obk2Obm6OyOSOyP+QOgCQZjqQZmaQZpCQttuQ2/+rbk2rjm6ryOSr5P+2ZgC2Zjq2kDq2kGa2tra2ttu229u22/+2///Ijk3Ijm7Iq27IyKvI5P/I///bkDrbkGbbtmbbtpDbtrbbttvb25Db27bb29vb2//b///kq27kyI7kyKvk///r6+v/tmb/yI7/25D/27b/29v/5Kv/5Mj/5OT//7b//8j//9v//+T///+19up1AAAACXBIWXMAAB2HAAAdhwGP5fFlAAAgAElEQVR4nO29C5sj53ldC8aWxCiWhWE4UpSLlaiPSI5sRj7WkGKu8kgeMvFJnGgoNkfyjDUc/P//cBpoXOryfXXZ9b1VuwtrPY9NNVAo7FoovBtAFTCbHQAAXCWbpQMAAMAyUAAAAFcKBQAAcKVQAAAAVwoFAABwpVAAAABXCgUAAHClUAAAAFcKBQAAcKVQAAAAVwoFAABwpVAAAABXCgUAAHClOBbA7RQm3jwW42zW3hAnYpwNbxpTvTWGLQUwJ8bZrL0hTsQ4G940KIBYP6EYZ7P2hjgR42x406AAYv2EYpzN2hviRIyz4U2DAoj1E4pxNmtviBMxzoY3DQog1k8oxtmsvSFOxDgb3jQogFg/oRhns/aGOBHjbHjToABi/YRinM3aG+JEjLPhTYMCiPUTinE2a2+IEzHOhjcNCiDWTyjG2ay9IU7EOBveNCiAWD+hGGez9oY4EeNseNOgAGL9hGKczdob4kSMs+FNgwKI9ROKcTZrb4gTMc6GNw0KINZPKMbZrL0hTsQ4G940KIBYP6EYZ7P2hjgR42x406AAYv2EYpzN2hviRIyz4U2DAoj1E4pxNmtviBMxzoY3DQog1k8oxtmsvSFOxDgb3jQogFg/oRhns/aGOBHjbHjToABi/YRinM3aG+JEjLPhTYMCiPUTinE2a2+IEzHOhjeNKygAAACYAccCWLQgQzHOZu0NcSLG2fCmcQXvABb1E4pxNmtviBMxzoY3DQog1k8oxtmsvSFOxDgb3jQogFg/oRhns/aGOBHjbHjToABi/YRinM3aG+JEjLPhTYMCiPUTinE2a2+IEzHOhjcNCiDWTyjG2ay9IU7EOBveNCiAWD+hGGez9oY4EeNseNOgAGL9hGKczdob4kSMs+FNgwKI9ROKcTZrb4gTMc6GNw0KINZPKMbZrL0hTsQ4G940KIBYP6EYZ7P2hjgR42x406AAYv2EYpzN2luXuM0d8wVpYy3OOBveNCiAWD+hGGez9tYhbrNZuAGsxRlnw5sGBRDrJxTjbNbe8uI2m6UbwFqccTa8aVAAsX5CMc5m7S0rbrNZvAGsxRlnw5sGBRDrJxTjbNbeKAAR42x406AAYv2EYpzN2hsFIGKcDW8aFECsn1CMs1l7owBEjLPhTYMCiPUTinE2a28cBBYxzoY3DQog1k8oxtmsvXEaqIhxNrxpUACxfkIxzmbtjS+CiRhnw5sGBRDrJxTjbNbeECdinA1vGhRArJ9QjLNZe0OciHE2vGlQALF+QjHOZu0NcSLG2fCmQQHE+gnFOJu1N8SJGGfDmwYFEOsnFONs1t4QJ2KcDW8aFECsn1CMs1l7Q5yIcTa8aVAAsX5CMc5m7Q1xIsbZ8KZBAcT6CcU4m7U3xIkYZ8ObBgUQ6ycU42zW3hAnYpwNbxoUQKyfUIyzWXtDnIhxNrxpUACxfkIxzmbtDXEixtnwpkEBxPoJxTibtTfEiRhnw5sGBRDrJxTjbNbeECdinA1vGhRArJ9QjLNZe0OciHE2vGlQALF+QjHOZu0NcSLG2fCmQQHE+gnFOJu1N8SJGGfDmwYFEOsnFONs1t4QJ2KcDW8aFECsn1CMs1l7Q5yIcTa8aVAAsX5CMc5m7Q1xIsbZ8KZBAcT6CcU4m7U3xIkYZ8ObBgUQ6ycU42zW3hAnYpwNbxoUQKyfUIyzWXtDnIhxNrxpUACxfkIxzmbtDXEixtnwpkEBxPoJxTibtTfEiRhnw5sGBRDrJxTjbNbeECdinA1vGhRArJ9QjLNZe0OciHE2vGlQALF+QjHOZu0NcSLG2fCmQQHE+gnFOJu1N8SJGGfDmwYFEOsnFONs1t4QJ2KcDW8aFECsn1CMs1l7Q5yIcTa8aVAAsX5CMc5m7Q1xIsbZ8KZBAcT6CcU4m7U3xIkYZ8ObBgUQ6ycU42zW3hAnYpwNbxoUQKyfUIyzWXtDnIhxNrxpUACxfkIxzmbtDXEixtnwpkEBxPoJxTibtTfEiRhnw5sGBRDrJxTjbNbeECdinA1vGhRArJ9QjLNZe0OciHE2vGlQALF+QjHOZu0NcSLG2fCmQQHE+gnFOJu1N8SJGGfDmwYFEOsnFONs1t4QJ2KcDW8aFECsn1CMs1l7Q5yIcTa8aVAAsX5CMc5m7Q1xIsbZ8KZBAcT6CcU4m7U3xIkYZ8ObBgUQ6ycU42zW3hAnYpwNbxoUQKyfUIyzWXtDnIhxNrxpUACxfkIxzmbtDXEixtnwpkEBxPoJxTibtTfEiRhnw5sGBRDrJxTjbNbeECdinA1vGhRArJ9QjLNZe0OciHE2vGlQALF+QjHOZu0NcSLG2fCmQQHE+gnFOJu1N8SJGGfDmwYFEOsnFONs1t4QJ2KcDW8aFECsn1CMs1l7Q5yIcTa8aVAAsX5CMc5m7Q1xIsbZ8KZBAcT6CcU4m7U3xIkYZ8ObBgUQ6ycU42zW3hAnYpwNbxoUQKyfUIyzWXtDnIhxNrxpUACxfkIxzmbtDXEixtnwpkEBxPoJxTibtTfEiRhnw5uGQwH87i+320cfPK9e9PaTm+22flGKy2Jvn25PvPc5BbA41t4QJ2KcDW8aBgXw6/u5/eiXl4vePEmO8iaVxSgAL6y9IU7EOBveNJYvgJfbR3+1271+Wh3cz7aPn+8vevxV500Ti726qRYJBbAU1t4QJ2KcDW8aixfA3Uv3j/f/vXs1//Flih/K4M2T1jDf82L7UXaxu7V91Fx+UT+hGGez9oY4EeNseNNYvADePDm+8n92Gd0vtj+ojvrX+0/6f/r8cu1HycXu/2f7TcOifkIxzmbtDXEixtnwprF4AZypFMCz45uBl4cJ/+rm/hjB6Q3Ced7XF9tTfRtBASyJtTfEiRhnw5uGTQFUPsh5+/T4P1/d3L2evxvqH361e/ub8zGCUwHUFzte9YPLGr9zRI4EAADD0QugMrvrk731QU++AOoHDSgAAIAZkQvg5bZ6JPc82d/7vDbmayd71hY7riR12tCi75BCMc5m7Q1xIsbZ8KZh8hHQy5tHlw/vu2Z+ugDu5/7phCIKYHmsvSFOxDgb3jQ8CuBF7Wtgtcl+/LJX5Rte2Y+Azu8EKIDFsfaGOBHjbHjTsCiAX2/rJ/xXT+9pfxkgexbQy+ohYApgUay9IU7EOBveNAwK4O2z7fv1V+6nEb//b/tzndbR4NN/n7W/BEYBLIS1N8SJGGfDm4ZBATxrHbqtfcX39N2u8xHe3DeBzx8JUQDLY+0NcSLG2fCmsXwBJL68e/eq//3zj/y8ebL/xZ/dlzendwLnAqgtVvlOMQWwPNbeECdinA1vGosXQOUg7w/Ov+X2uvproC/vvwm8/bB129pile+DUQCLY+0NcSLG2fCmsXgBvNwmCmD3+pO7vz84zvP73wL6NHHj2mLpbwFQAItg7Q1xIsbZ8KaxeAHEs6ifUIyzWXtDnIhxNrxpUACxfkIxzmbtDXEixtnwpkEBxPoJxTibtTfEiRhnw5sGBRDrJxTjbNbeECdinA1vGhRArJ9QjLNZe0OciHE2vGlQALF+QjHOZu0NcSLG2fCmQQHE+gnFOJu1N8SJGGfDmwYFEOsnFONs1t4QJ2KcDW8aFECsn1CMs1l7Q5yIcTa8aVAAsX5CMc5m7Q1xIsbZ8KZBAcT6CcU4m7U3xIkYZ8ObBgUQ6ycU42zW3hAnYpwNbxoUQKyfUIyzWXtDnIhxNrxpUACxfkIxzmbtDXEixtnwpkEBxPoJxTibtTfEiRhnw5sGBRDrJxTjbNbeECdinA1vGhRArJ9QjLNZe0OciHE2vGlQALF+QjHOZu0NcSLG2fCmQQHE+gnFOJu1N8SJGGfDmwYFEOsnFONs1t4QJ2KcDW8aFECsn1CMs1l7Q5yIcTa8aVAAsX5CMc5m7Q1xIsbZ8KZBAcT6CcU4m7U3xIkYZ8ObBgUQ6ycU42zW3hAnYpwNbxoUQKyfUIyzWXtDnIhxNrxpUACxfkIxzmbtDXEixtnwpkEBxPoJxTibtTfEiRhnw5sGBRDrJxTjbNbeECdinA1vGhRArJ9QjLNZe0OciHE2vGlQALF+QjHOZu0NcSLG2fCmQQHE+gnFOJu1N8SJGGfDmwYFEOsnFONs1t4QJ2KcDW8aFECsn1CMs1l7Q5yIcTa8aVAAsX5CMc5m7Q1xIsbZ8KZBAcT6CcU4m7U3xIkYZ8ObBgUQ6ycU42zW3hAnYpwNbxoUQKyfUIyzWXtDnIhxNrxpUACxfkIxzmbtDXEixtnwpkEBxPoJxTibtTfEiRhnw5sGBRDrJxTjbNbeECdinA1vGhRArJ9QjLNZe0OciHE2vGlQALF+QjHOZu0NcSLG2fCmQQHE+gnFOJu1N8SJGGfDmwYFEOsnFONs1t4QJ2KcDW8aFECsn1CMs1l7Q5yIcTa8aVAAsX5CMc5m7Q1xIsbZ8KZBAcT6CcU4m7U3xIkYZ8ObBgUQ6ycU42zW3hAnYpwNbxoUQKyfUIyzWXtDnIhxNrxpUACxfkIxzmbtDXEixtnwpkEBxPoJxTibtTfEiRhnw5sGBRDrJxTjbNbeECdinA1vGhRArJ9QjLNZe0OciHE2vGlQALF+QjHOZu0NcSLG2fCmQQHE+gnFOJu1N8SJGGfDmwYFEOsnFONs1t4QJ2KcDW8aFECsn1CMs1l7Q5yIcTa8aVAAsX5CMc5m7Q1xIsbZ8KZBAcT6CcU4m7U3xIkYZ8ObBgUQ6ycU42zW3hAnYpwNbxoUQKyfUIyzWXtDnIhxNrxpUACxfkIxzmbtDXEixtnwpkEBxPoJxTibtTfEiRhnw5sGBRDrJxTjbNbeECdinA1vGhRArJ9QjLNZe0OciHE2vGlQALF+QjHOZu0NcSLG2fCmQQHE+gnFOJu1N8SJGGfDmwYFEOsnFONs1t4QJ2KcDW8aFECsn1CMs1l7Q5yIcTa8aVAAsX5CMc5m7Q1xIsbZ8KZBAcT6CcU4m7U3xIkYZ8ObBgUQ6ycU42zW3hAnYpwNbxoUQKyfUIyzWXtDnIhxNrxpUACxfkIxzmbtDXEixtnwpkEBxPoJxTibtTfEiRhnw5sGBRDrJxTjbNbeECdinA1vGhRArJ9QjLNZe0OciHE2vGlQALF+QjHOZu0NcSLG2fCmQQHE+gnFOJu1N8SJGGfDm8YVFAAAAMyAYwEsWpChGGez9oY4EeNseNO4gncAi/oJxTibtTfEiRhnw5sGBRDrJxTjbNbeECdinA1vGhRArJ9QjLNZe0OciHE2vGlQALF+QjHOZu0NcSLG2fCmQQHE+gnFOJu1N8SJGGfDmwYFEOsnFONs1t4QJ2KcDW8aFECsn1CMs1l7Q5yIcTa8aVAAsX5CMc5m7Q1xIsbZ8KZBAcT6CcU4m7U3xIkYZ8ObBgUQ6ycU42zW3hAnYpwNbxoUQKyfUIyzWXtDnIhxNrxpUACxfkIxzmbtDXEixtnwpkEBxPoJxTibtTfEiRhnw5sGBRDrJxTjbNbeECdinA1vGhRArJ9QjLNZe0OciHE2vGlQALF+QjHOZu0NcSLG2fCmQQHE+gnFOJu1N8SJGGfDmwYFEOsnFONs1t4QJ2KcDW8aFECsn1CMs1l7Q5yIcTa8aVAAsX5CMc5m7Q1xIsbZ8KZBAcT6CcU4m7U3xIkYZ8ObBgUQ6ycU42zW3hAnYpwNbxoUQKyfUIyzWXtDnIhxNrxpUACxfkIxzmbtDXEixtnwpkEBxPoJxTibtTfEiRhnw5sGBRDrJxTjbNbeECdinA1vGhRArJ9QjLNZe0OciHE2vGlQALF+QjHOZu0NcSLG2fCmQQHE+gnFOJu1N8SJGGfDmwYFEOsnFONs1t4QJ2KcDW8aFECsn1CMs1l7Q5yIcTa8aVAAsX5CMc5m7Q1xIsbZ8KZBAcT6CcU4m7U3xIkYZ8ObBgUQ6ycU42zW3hAnYpwNbxoUQKyfUIyzWXtDnIhxNrxpUACxfkIxzmbtDXEixtnwpkEBxPoJxTibtTfEiRhnw5sGBRDrJxTjbNbeECdinA1vGhRArJ9QjLNZe0OciHE2vGlQALF+QjHOZu0NcSLG2fCmQQHE+gnFOJu1N8SJGGfDmwYFEOsnFONs1t4QJ2KcDW8aFECsn1CMs1l7Q5yIcTa8aVAAsX5CMc5m7Q1xIsbZ8KZBAcT6CcU4m7U3xIkYZ8ObBgUQ6ycU42zW3hAnYpwNbxoUQKyfUIyzWXtDnIhxNrxpUACxfkIxzmbtDXEixtnwpkEBxPoJxTibtTfEiRhnw5sGBRDrJxTjbNbeECdinA1vGhRArJ9QjLNZe0OciHE2vGlQALF+QjHOZu0NcSLG2fCmQQHE+gnFOJu1N8SJGGfDmwYFEOsnFONs1t4QJ2KcDW8aFECsn1CMs1l7Q5yIcTa8aVAAsX5CMc5m7Q1xIsbZ8KZBAcT6CcU4m7U3xIkYZ8ObBgUQ6yeU/mybO2YI0sba25qfkKEYZ8ObBgUQ6yeU3mybzVINYO1tzU/IUIyz4U2DAoj1E0pfts1msQaw9rbmJ2QoxtnwpkEBxPoJpSfbZrNcA1h7W/MTMhTjbHjToABi/YRCAYgYh7MWZ5wNbxoUQKyfUCgAEeNw1uKMs+FNgwKI9RMKBSBiHM5anHE2vGlQALF+QuEgsIhxOGtxxtnwpkEBxPoJhdNARYzDWYszzoY3DQog1k8ofBFMxDictTjjbHjToABi/YRinM3aG+JEjLPhTYMCiPUTinE2a2+IEzHOhjcNCiDWTyjG2ay9IU7EOBveNCiAWD+hGGez9oY4EeNseNOgAGL9hGKczdob4kSMs+FNgwKI9ROKcTZrb4gTMc6GNw0KINZPKMbZrL0hTsQ4G940KIBYP6EYZ7P2hjgR42x406AAYv2EYpzN2hviRIyz4U2DAoj1E4pxNmtviBMxzoY3DQog1k8oxtmsvSFOxDgb3jQogFg/oRhns/aGOBHjbHjToABi/YRinM3aG+JEjLPhTYMCiPUTinE2a2+IEzHOhjcNkwJ48+QH9T+3B977vPtmbz+52W4/eL7/X0+3J5o3WtRPKMbZrL0hTsQ4G940TArg2bZWAK9uBhXAsSf2S1EAXlh7Q5yIcTa8aVgUwNtn23oBvKz/mePZ9vHz3eun28dfnS96dfPol42lFvUTinE2a2+IEzHOhjcNhwL43c+2jQJ4tv0ov/iL05Wvbg4v9t88ucz8uzcCrVsu6icU42zW3hAnYpwNbxoGBfBiu/3wy1oBvH1aexn/ev9J/0+ftwrgxfFGLy5D/0X13QAFsBzW3hAnYpwNbxoOBfD+p43PfN48efx3PzvP/OMBgUcfNwvg2fb+osuN3zzZfrxrsqifUIyzWXtDnIhxNrxpGBRAfYZXRv72MM3vhvqHX+3e/uZ8cPdUAOf3Ca9uTi/7X1RX850jYiQAABhDmQJ4ud3P/H/6ZLuf8K0PevIFUD0aQAEAAMxKmQI4zfz9seDamK+d7Fm55vjm4GXiCAAfAS2CtTfEiRhnw5uG5UdAl0tbMz9dAPdz/+7a9hEACmARrL0hTsQ4G940rAtg/9L+9KXgyze8sh8Bnd8JUACLY+0NcSLG2fCmYV4Aj7+qf65fLYDWWUCZr48t6icU42zW3hAnYpwNbxqOBXD+KGd/aftzndbR4NN/M18fW9RPKMbZrL0hTsQ4G940HAvg9MtA97P/9N2u8xHe3DeBG18fowCWxNob4kSMs+FNw7IAXt3sTwN9/bPDyH/zZP+LP7svb07vBM4FcFcQ71d+C+jNk/Rvxy3qJxTjbNbeECdinA1vGmYFcPwttxfHo76HrwK/PH4t7MPWrV4/qR4cvnwfjAJYHGtviBMxzoY3Dc8C2L3+y+320YfHeX7/W0CfJm72+pO7+f/BV6d1UAA2WHtDnIhxNrxpmBRAJIv6CcU4m7U3xIkYZ8ObBgUQ6ycU42zW3hAnYpwNbxoUQKyfUIyzWXtDnIhxNrxpUACxfkIxzmbtDXEixtnwpkEBxPoJxTibtTfEiRhnw5sGBRDrJxTjbNbeECdinA1vGhRArJ9QjLNZe0OciHE2vGlQALF+QjHOZu0NcSLG2fCmQQHE+gnFOJu1N8SJGGfDmwYFEOsnFONs1t4QJ2KcDW8aFECsn1CMs1l7Q5yIcTa8aVAAsX5CMc5m7Q1xIsbZ8KZBAcT6CcU4m7U3xIkYZ8ObBgUQ6ycU42zW3hAnYpwNbxoUQKyfUIyzWXtDnIhxNrxpUACxfkIxzmbtDXEixtnwpkEBxPoJxTibtTfEiRhnw5sGBRDrJxTjbNbeECdinA1vGhRArJ9QjLNZe0OciHE2vGlQALF+QjHOZu0NcSLG2fCmQQHE+gnFOJu1N8SJGGfDmwYFEOsnFONs1t4QJ2KcDW8aFECsn1CMs1l7Q5yIcTa8aVAAsX5CMc5m7Q1xIsbZ8KZBAcT6CcU4m7U3xIkYZ8ObBgUQ6ycU42zW3hAnYpwNbxoUQKyfUIyzWXtDnIhxNrxpUACxfkIxzmbtDXEixtnwpkEBxPoJxTibtTfEiRhnw5sGBRDrJxTjbNbeECdinA1vGhRArJ9QjLNZe0OciHE2vGlQALF+QjHOZu0NcSLG2fCmQQHE+gnFOJu1N8SJGGfDmwYFEOsnFONs1t4GitvcERykjbU442x406AAYv2EYpzN2tswcZvNEg1gLc44G940KIBYP6EYZ7P2NkjcZrNIA1iLM86GNw0KINZPKMbZrL1dxOUn/GazTANYizPOhjcNCiDWTyjG2ay9ncV1THgKIIFxNrxpUACxfkIxzmbt7SSua8RTAAmMs+FNgwKI9ROKcTZrb0dxnTOeAkhgnA1vGhRArJ9QjLNZextSABwETmCcDW8aFECsn1CMs1l7G1QAnAbaxjgb3jQogFg/oRhns/Y2rAD4IlgL42x406AAYv2EYpzN2tuQg8BLYS3OOBveNCiAWD+hJLN5TDRrb0NOA10Ka3HG2fCmQQHE+gkllc1kpll7G/JFsKWwFmecDW8aFECsn1AS2Vw+1bD2tuYnZCjG2fCmQQHE+gmlnW2ps9dbWHtb8xMyFONseNOgAGL9hEIBiBiHsxZnnA1vGhRArJ9QKAAR43DW4oyz4U2DAoj1EwoFIGIczlqccTa8aVAAsX5C4SCwiHE4a3HG2fCmQQHE+gmF00BFjMNZizPOhjcNCiDWTyh8EUzEOJy1OONseNOgAGL9hGKczdob4kSMs+FNgwKI9ROKcTZrb0PELfVGylqccTa8aVAAsX5CMc5m7W2AuMUOpViLM86GNw0KINZPKMbZrL31i1vuZCprccbZ8KZBAcT6CcU4m7W3XnELfp3CWpxxNrxpUACxfkIxzmbtjQIQMc6GNw0KINZPKMbZrL1RACLG2fCmQQHE+gnFOJu1NwpAxDgb3jQogFg/oRhns/bGQWAR42x406AAYv2EYpzN2hungYoYZ8ObBgUQ6ycU42zW3vgimIhxNrxpUACxfkIxzmbtDXEixtnwpkEBxPoJxTibtTfEiRhnw5sGBRDrJxTjbNbeECdinA1vGhRArJ9QjLNZe0OciHE2vGlQALF+QjHOZu0NcSLG2fCmQQHE+gnFOJu1N8SJGGfDmwYFEOsnFONs1t5udx7/bFoKa3HG2fCmQQHE+gnFOJu1N5d/ODmFtTjjbHjToABi/YRinM3a23I/9NCPtTjjbHjToABi/YRinM3Z24I/9daPszh2OBHjbBRArJ9QXLIlZqmbt2rEsgVQuEjcxNUwzoY3DQog1k8oJtlSw9TMWy1i0QIo/VbCTFwd42x406AAYv2E4pEtOU29vNUjliyA4h8meYlrYJwNbxoUQKyfUCyypceplbdmxPLzv1wDWIlrYpwNbxoUQKyfUCyyPcACKPe5DQXgAt40rqAAIJTLDFw6SZZ2xGRcYRsewMYDzIfj82DRggzFIttDfAeQDKe8kucdgAt407iCdwCL+gnFI1tyBHp5a0ZMhdMmeen5byaugXE2vGlQALF+QjHJlhqBZt4aERPh1Nfyhee/m7g6xtnwpkEBxPoJxSVbYgS6eatHLFgAfBHMA7xpUACxfkIxzmbtrWgBFMZanHE2vGlQALF+QjHOZu2NAhAxzoY3DQog1k8oxtlcvd1P+HIHgdPrn4CruAPG2fCmQQHE+gnFOJupt+OML3YaaPl1mIq7xzgb3jQogFg/oRhn8/R2epWfDldq/k9ai6e4I8bZ8KZBAcT6CcU4m6W36M/5S6zfUtwJ42x406AAYv2EYpzN0hsFMBHjbHjTmKUA/viv/vz/xg/6HIv6CcU4m6U3CmAixtnwpjFPAfxws/mTH/82fNSnWdRPKMbZLL1RABMxzoY3jVkK4Jv/dHhW/OnfLNIBi/oJxTibp7fug8Dl1j9hFZ7ijhhnw5vGXMcA/uFfH54Z/+Jvgqd9gkX9hGKczdRb12mgBdc/AVNx9xhnw5vGjAeB//6+A773q8hpn2BRP6EYZ3P1dj+f48LxRbCFwJvGrGcBffP3P9o/Qd758ayHhBf1E4pxNmtviBMxzoY3jblPA/3Hn797+ChoxrcBi/oJxTibtTfEiRhnw5vGvO8A/ss/P58n8edxE7/Bon5CMc5m7Q1xIsbZ8KYxXwGcpv/+XKB//E+bzfdDp36FRf2EYpzN2hviRIyz4U1jpgI4fvp/+TbA15tvzXVO6KJ+QjHOZu0NcSLG2fCmMc/3AP7jpnnw948//Gd/Gzj0qyzqJxTjbNbeECdinA1vGrN9E/id+umff/wh7wAmY5zN2hviRIyz4U1jpgL43n9vXPTNf5vtVNBF/YRinM3aG+JEjLPhTYNfA431E4pxNmtviBMxzoY3jXkK4LPZv/5bYVE/oRhns/aGOBHjbHjTmOsYwE/iB32ORf2EYpzN2hviRIyz4U1jpgKY7ZSfBIv6CcU4m7U3xIkYZ8Obxkyngb7zi/hBn2NRP6EYZ7P2hjgR42x405jnGMAXm28tdxBgUQdQ+e4AACAASURBVD+hGGeb39uY3+FEnIZxNrxpzFMA//ifN5s/+bN/d+Qv5v13YRb1E4pxttm9jfolfsRpGGfDm8ZsXwSrMPMBgUX9hGKcbW5v4/4tLsRpGGfDmwYFEOsnFONsM3sb+a/xIk7DOBveNPgiWKyfUIyzUQAi7HAaeNOgAGL9hGKcjQIQYYfTwJsGBRDrJxTjbBSACDucBt40ZvwHYf7Pkb//NxwDKINxNg4Ci7DDaeBNY6YC+MPPOQhcHuNsnAYqwg6ngTeNeQqgfhrQtyiAMhhn44tgIuxwGnjTmOubwJt3/uzfvrv/v807/yF85NdZ1E8oxtmsvSFOxDgb3jTm+ichv/Xb/f//yeFXIeb9IjAFsATW3hAnYpwNbxozfRHs8GNwX2y+f/f/P5v7p6EX9ROKcTZrb4gTMc6GN405fw766823z/9/Rhb1E4pxNmtviBMxzoY3jXkLYP/pz4z/HPw9i/oJxTibtTfEiRhnw5vGnP8ewO/f3ffA7P86zKJ+QjHOZu0NcSLG2fCmMdO/CXz49P/+UMB9DczIon5CMc5m7Q1xIsbZ8KYxTwH8/t3N9361Pw3o+/sy4COgQhhns/aGOBHjbHjTmOmbwJ8dvv/79Wbzzrubw7uBGVnUTyjG2cp7G/NFrz6uSlxBjLPhTWOu3wL6H/sPfr757PBFYL4HUAjjbMW9jfqphz6uSVxJjLPhTWO+H4P7X3dz/5v/+d3v/njm+U8BLEFpb+N+7K2PKxJXFONseNPg56Bj/YRinK2wt5E/99zH9Ygri3E2vGlQALF+QjHORgGIsMNp4E0juAC++et/1+YvOAuoDMbZKAARdjgNvGkEF0Djn4Pn3wMoinE2CkCEHU4DbxoUQKyfUIyzcRBYhB1OA28aHAOI9ROKcTZOAxVhh9PAmwYFEOsnFONsfBFMhB1OA28aFECsn1CMs1l7Q5yIcTa8acxXAN/8nyN//284BlAG42zW3hAnYpwNbxozFcAffs5B4PIYZ7P2hjgR42x405inAOonA32LAiiDcTZrb4gTMc6GN415CuCLzeadP/u37+7/b/POfwgf+XUW9ROKcTZrb4gTMc6GN42Z/kWw/U+A3v3/n+y7gF8DLYVxNmtviBMxzoY3jZn+TeDDPwn5xeFfAvhsXwNzsqifUIyzWXtDnIhxNrxpzPuPwn/7/P9nZFE/oRhns/aGOBHjbHjTmLcA9p/+/PGH/JOQhTDOVsxbye9/nbkGcREYZ8ObxkzHAA4fAd3/c/DHNpiPRf2EYpytlLeivwBx5grEhWCcDW8a85wF9Nnh0//7QwH3NTAji/oJxThbIW9lfwPuzPrFxWCcDW8a8xTA79/dfO9X+9OAvr8vAz4CKoRxtjLeCv8K9JnViwvCOBveNGb6JvBnh+//fr3ZvPPu5vBuYEYW9ROKcTYKQIQdTgNvGnP9FtD/2H/w881nhy8C8z2AQhhnowBE2OE08KYx34/B/a+7uf/N//zud3888/ynAJZgzQUQcmLSCXY4Dbxp8HPQnYQ+1yez4v3qiONB4JgTk060xRntg+vf4WIwzkYBdBH7XJ/MiverE36ngQZ10omWOKd98Ap2uBCMs81bAN/8f//1v4UN+hz6xgU/1yez4v3qjNsXwaI+lTrRFGe1D17DDheBcba5CuAP/+/+S8A/utuT//QXwQO/ibxt0c/1yax4v4rl4RSA1z5o/KBa73DG2WYqgC/2Z4HuDicBbWb+HhgFsATWz0cKQMT4QbXe4YyzzVMAXx/G/u/f3Xzrt3/44YP5HoDXky/BiverWCgADeMH1XqHM842109B7E/+/3qz/ymIrx/MN4G9nnwJVrxfxfJwDgJ77YPGD6r1Dmecbc4fg/vs+GugD+a3gJyeeylWvF/F8oBOA7XaB40fVOsdzjjbjD8H/ccfHv4lgAdUAFan4CVY8X4Vy0P6IpjTPmj8oFrvcMbZZiyA3797+LfAkgXw5skPan+//eRmu/3ged9svyz29un2xHufFysApy/hJFjxfhWLcTi+CKZhvcMZZ5vxI6AvDocA0scAnm1rBfDmSXKUN6ksFlQA7Fci1t4QJ2KcDW8acx0E/vb+9J/95E+dBfT22bZeAM+2j5/vXj/dPv6qswASi726efTLxlKL+gklmc3jBaOlt7Max3BHLMWdMM6GN43ZTgPd85PdNz/f3L8PqPK7n23rBfDq5vAq/s2T1jDf82L7UXaxuzcCHzWXX9RPKKlsJh8ZO3q7qDEMd8JR3BnjbHjTmO2LYHd8+3Ag+J2ftAb69sMvawXw4vjXcdS/3n/S/9Pnl2s/Si52/z/bbxoW9RNKIpvLSSOG3ipq/MKdMRR3wTgb3jRm+ymIv/6Lv7n7zx//1fd+1bzqxfuf7l7WCuDZ9uPDf+8vfXVz+Gj/0cfNAqgvtufNk+3HuyaL+gmlnc3mtPHy3qZuVFWNEG4upw9sh7MBbxomvwZaK4C3T4+f6by6uXs9fzfUP/xq9/Y354O7pwKoL3a8qrKa7xwRIz1ILlOu0MoKrKYMk7dqmppiUgFWTEABtD7oyRdA/aABBVBiXdPXU4TpmzVJTcFaBVgvpQvgvc9rY752smdtseNaUqcNLfoOKZTQj4CmraiwtwLbNeUjoBk/WXtgO5wNeNOw/wioMfPTBXA/9++ubR8BuK4CKHcQeOLM8yuAKQeBKYB7jLPhTcO+AI5f9qp8wyv7EdD5ncAVF0Cx00DXVwATTgOlAO4xzoY3DccCqJ3e0/4yQPYsoPpKHm4BDB40kV8EW2EB6F8EowDuMc6GNw3LAjiN+P1/25/rtI4Gn/77rP0lsIdYAMMnTWQ2rwIo/P2G0eFmm/8MMhG8aVgWQO0rvqfvdp2P8Oa+CXz+SOhhF8CIWROabdrMK+6t6AAeH26u+c8gE8GbhmUB3L3qf//8Iz9vnux/8Wf35c3pncC5AGqL7RdM/3jcon5GM+aVd2y2STPP74tgVfgimIZxNrxpmBXA8bfcXld/DfTl/TeBtx+2blVbrPJ9MAqgWBT1ttbPxzU/IUMxzoY3Dc8C2L3+5G6wf3Cc5/e/BfRp4ma1xdLfAqAAFsH6+Yg4EeNseNMwKYBIFvUzGgpgBozDWYszzoY3DQog1s94XA4CT8P6+Yg4EeNseNOgAGL9CHicBjoR6+cj4kSMs+FNgwKI9aMw+OBrVLYCZ7xYPx/X/IQMxTgb3jQogFg/oQRlK3HOu7W3NT8hQzHOhjcNCiDWTygx2Yp869Xa25qfkKEYZ8ObBgUQ6yeUkGxlfvfG2tuan5ChGGfDmwYFEOsnlInZ0kOeAlgUa3HG2fCmQQHE+gllWrbMlKcAFsVanHE2vGlQALF+QpmULTfmKYBFsRZnnA1vGhRArJ9QpmTLz3kOAi+JtTjjbHjToABi/YQSUwCcBrok1uKMs+FNgwLoZK4fAdYIKgC+CLYg1uKMs+FNgwLoosRr4UCiCqAA1s/HNT8hQzHOhjcNCqCD0BFZgJCDwGWwfj6u+QkZinE2vGlQAHmCXyRPJ+Q00DJYPx/X/IQMxTgb3jQogDwrL4DQAxzWz8c1PyFDMc6GNw0KIM/aCyCSuZ6P2qODOA3jbHjToADyUAA6Mz0fxYcHcRrG2fCmQQF0YD7/17xfDUN9gK5enIhxNrxpUABdeM//Ne9Xg5Dfol27OBXjbHjToAA6sZ7/a96vmnR8ZXlcAxwW3mVXuTgMMg28aVAAsX5CMc5W2Ft6ym/GN8D9wrvsKheHHU4DbxoUQKyfUIyzlfWWmfKb0Q1wWdj1+A47nAbeNCiAWD+hGGcr6i075cc2wCZBwZwlYIfTwJsGBRDrJxTjbPMUwNgPgSiAaRhnw5sGBRDrJxTjbDMVwMjjwBTANIyz4U2DAoj1E4pxtrkKYNypoBTANIyz4U2DAoj1E4pxtlkOAvde17Gw6fxnhxPBmwYFEOsnFONss5wG2n9dZmFOA9UwzoY3DQog1k8oxtlm+SLYgOvSC/NFMA3jbHjToABi/YRinM3aG+JEjLPhTYMCiPUTinE2a2+IEzHOhjcNCiDWTyjG2ay9IU7EOBveNCiAWD+hGGez9oY4EeNseNOgAGL9hGKczdob4kSMs+FNgwKI9ROKcTZrb4gTMc6GNw0KINZPKMbZrL0hTsQ4G940KIBYP6EYZ7P2hjgR42x406AAYv2E0s5m8+Uma29rfkKGYpwNbxoUQKyfUFrZfH7ewNrbmp+QoRhnw5sGBRDrJ5RmNqMfOLP2tuYnZCjG2fCmQQHE+gmlkc3pJ46tva35CRmKcTa8aVAAsX5CoQBEjMNZizPOhjcNCiDWTygUgIhxOGtxxtnwpkEBxPoJhQIQMQ5nLc44G940KIBYP6FwEFjEOJy1OONseNOgAGL9hMJpoCLG4azFGWfDmwYFEOsnFL4IJm6v8YP6wHY4G/CmQQHE+gnFONs83tR3PFcvTsQ4G940KIBYP6EYZyvpLTvkE8c8hhXClYgrjnE2vGlQALF+QjHOVtBb9mV+4qyngW8JrkNceYyz4U2DAoj1E4pxtnLe8qc2tQtg6GlQVyEuAONseNOgAGL9hGKcrZi3ji83tK4a/EWIajib4+b3sMNp4E2DAoj1E4pxtgdTAD5nzt7DDqeBNw0KINZPKMbZ5iiA5ic+G6EAhn5oNBvscBp406AAYv2EYpxtlgK4zc3/voF+Dje4MmaDHU4DbxoUQKyfQJzGVou4g8C1zW5e0RzoGUcUgIZxNrxpUACxfuLwmltNwk4DzW92vQA2XQtTABrG2fCmQQHE+gnDbXA1iPoiWO/nQdWJnl2YAtAwzoY3DQog1k8UfpOrTpC3zs1uFkB+YQ4Caxhnw5sGBRDrJwoKoPPawQUw8JO0+US77nAHjLPhTYMCiPUTBQXQffWmc+GxXwSb0bTrDnfAOBveNCiAWD9RUADdi3QvPDLcnKpdd7gDxtnwpkEBxPoJw3v+h3lrbHbKwOWyrKNx4WYtW9sdbo9xNrxpUACxfuKwnv9x3lrzv8tB7noKQMM4G940KIBYP4E4z/9Ab63539cAiYt3XVcmVzJXAVg/qGseZKEYZ6MAYv2EYpxtjncA+mDeNdY05C5nGc3eb+uucocrgXE2CiDWTyjG2eY4BjCtAAbfdvb579sAV7jDFcE4GwUQ6ycU42xznAU0qQAG33iB+W/bANe3w5XBOBsFEOsnFONsFIAABaDDE1WDAoj1E4pxtlm+ByCPSwpA4/p2uDIYZ6MAYv2EYpxtni+CqdOSAtC4vh2uDMbZKIBYP6EYZ1vwi2ADkA4CC/czFvP5f407XBGMs1EAsX5CMc42zxfBVJTTQCfe5TC85/9V7nAlMM5GAXRi/XRc836VUH+8oMRDMu6LYHPuBexwIhSABgXQBS/IVCY/H1vqSz4WaxYXiXE2vGlQAB3wkazM1P2qpb7oY7FicaEYZ8ObBgWQh5MydCbuVy31ZR+L9YqLxTgb3jQogDwUgA4FIMIg08CbxhUUgMxl6Cyd5OpoqeexAPDH8ekplxvvAHQC3wEUeEB6wy33oPNKVgNvGlfwDkDfOPP5v+b9Kn8QuMRD0hduwYedQaaBNw0KoAvv+b/m/Sp7GmiRUu4Jt2TxM8g08KZBAXRiPf9d96v7T+pLrKV1QYXzBUNu26A73KIf/THINPCmQQF0wTsAgeOx2rhVN94LtB+f3oeNAtAwzoY3DQqgA44BDCH5UU1BaZeVbTIkbtCdgALQMM6GNw0KIM9ig2DoXVrsVw1DxaVdVpab/9mPirLrpAA0jLPhTYMCyLPUIBh8nw77VVNRaWmVtc1VABwEzmGcDW8aFECehQpg+J0a7FctR4WlVVdXG/mRBcBpoBmMs+FNgwLIs0wBjLhXg/1qnQXAF8HSGGfDmwYF0MES8/+hF0BhabX15xogc5v8Wg3E5WCQaeBNgwLoYoH5/+ALoOxpoPX1pxsgc6OOtRqIy8Eg08CbBgXQyQIfBYQWQPntSYQ9zP9S+3x9/bWX/XlNfZs5KNwCj/0tg0wFbxoUQBdLvAOIPAgcsT3pdZZ7PtbXn3pHMH6dQ8It8tgzyFTwpkEBdDB8FBdl8J2O3bSY7UmuseDzsbb+1FuA8dszINxCjz2DTARvGhRAnhEfxpRl6F2O3LQ5tyfs+bhJMXYl/eEWe+wZZBp406AA8iw2BIZyjQWQbICx66AANIyz4U2DAsizyBA43N3A+6QAKIBZMc6GNw0KIM8SQ2DUVKMAercnfS0FoGGcDW8aFEAHi87/gNNAZ9yewOfjZSuGzf/UIeox9zIvDDINvGlQAF0sOv/779jiNNA0kc/Hy1YMm/+Jk1RH3cusMMg08KZBAXQy8wwoUQCdN5xte0Kfj5etqGxPYtOyJvkimIZxNrxpUABdPMB3AAu9cG0y+/Mxtd1iASwqkEGmgTcNCqCD2T8Hnl4As0fOMPfzMbndWgEsK5BBpoE3DQogz/BJXIxR8z+xXwmRYzZx5udjerulAli4QhlkGnjToADyLFAAU08DHR85aBstCkA5CLzEg16FQaaBNw0KIM8is+BwdwPvs0ABjCqcEXgUgHAaKAXQgXE2vGlQAHmWngW9TC+ATZWi0TwKYPwXwZZ+0BlkGnjToAA6MJ//BQ4Cr6UARm43BaBhnA1vGhRAnqVnQS/TTwNdTQGM224OAmsYZ8ObBgWQ50EWwLiz2IMLoNxa+9fUuUTjyl314tp1iz/kDDINvGlQAHkeZAGMDBw0/+/3q3Lrnbim5s131Yur1y3/iDPINPCmQQHkeYgFMDpx0DbutZdb88Q1tW6+q118uc7g8WaQaeBNgwLI8wALQIgcs4l32svpm7im9s139YtP1zk84AwyDbxpUAB5HOZBJ0UKIAYKQIRBpoE3DQogj8M86IQCEG9OAWgYZ8ObBgWQx2EedEIBiDcfXgCzq2SQaeBNgwLowGSYZjH/NdCuLOMypgpgxBpatx58EHh+mQwyDbxpUABdeAzTLAVOA42i5zTQcSmbc3r0GpoL95wG2rrjoUELwCDTwJsGBdCJxTDNMv2LYGF0fxEsN1gzy7deqUs/eVFNV724NfIT9zvwbgrAINPAmwYF0IXJy+kcD3W/yg3WnO52AUwczQPFUQANjLPhTYMC6GCBTwBG8VD3q8xgzeqmAEwwzoY3DQogzxLP/1E81P0qLbZDNwXggXE2vGlQAHkoAJ1yBXC4oHnVPAXAQeAGxtnwpkEB5KEAdLq1Zyd9rhZaP1gx7ZEZLG7+h59BpoE3DQogDwWg06M9pTWp+3JR8go13eAlZ3/0GWQaeNOgADown/8Peb9Kae2Y/5njAnI69YbxMMg08KZBAXThPf9Xt1/lPgAq/iCsTdxcGGfDmwYF0Inz/HfOJu5XA48L9N0ws/zlYmN1Kxtks5lembe5mPz4NIYtBTDb+r3fnRR6Pg4sgPoiHZ8Z3V/srG5dg2w+0+vyNhfTH5/GsF1ZAUTvvxPWb358otTzccT8b35HILuQtbpVDbIZTa/K21wUeHwaw3ZdBRC9/05Y/9DPRpZizncA9YUyN9kkKBKxMGsaZHOaXpO3uSjx+DSG7aoKIHr/nbJ+7ylGAcisaZBRAEdMs1EA8X6i1u89xSgAmTUNMgrgiGk2CiDeT9T6vacYBSCzpkFGARwxzUYBxPsJW7/zELvlILDMqgbZjKZX5W0uCjw+jWG7qgJwPgjsfS5jwedjazMvQzy3UMbMRfZlAT+F6xpk8+2k6/I2F9Mfn8awXVUBRL8DmOjfb3hVKPd8TMz/9sPS9VfzppUFDEt0ZYNsNr8r8zYXkx+fxrClAMbfhX5r3/0q7Pm4qaHd9iwu/OEVYJBp4E2Dn4LIM0MBTGPF+1WGTQPttkdxlo8vg0wDbxoUQB7LAVFlxftVhpIFIL+TCIVBpoE3DQqgA8P5UGPF+1WGCQVQvdXuNncwYXEYZBp406AAurAbD3VWvF9l0AugdqtdY00hWTUYZBp406AAOjGbDg1WvF/lKPIGoFkAMVE1GGQaeNOgAGL9hGKcLcybOrhrt9q5HgFgh1PBmwYFEOsnFONscd7uR3Z2cOeuaBRAff4Pr4HwwmCH08CbBgUQ6ycU42xLecu/pq++3t+15/+wuR7/loEdTgNvGhRArJ9QjLMt5K3rU53KNan5P2Suz/ChETucBt40KIBYP6EYZ1vGW/fn+j3zv3+uz3HYgB1OA28aFECsn1CMszkWQGYxCmAwxtnwpkEBxPoJxTjbnN4uE5kCiMU4G940KIBYP6VITh2TbClm9Jb8bH/ALSiA0Rhnw5sGBRDrpxDpseORLcl83mozuWNAVy+uLzZ8qsfPf5cdLo1xNrxpUACdBD/bh3IePPU8K96vBtN4Vd45/89X7OqLDZ/q4fOfQSaCNw0KoIv45/uIGO3PH1a8Xw2moiVRka3Fjuky/4JM/6Mdvj8wyDTwpkEBdDDDO/5ROZp5VrxfDSbnJrfUfbqupYKCDoRBpoE3DQogT99UmY3mkDt/krFoqk4WK4D8D0T0FoDFo80g08CbBgWQhwLQmf8gcOeDNaQAPB5uBpkG3jQogDweE6GehAJoQgHMh3E2vGlQAHk8JkIjCgVQpzX/uz8DOqbrXlNY2AEwyDTwpkEBdOAwEI4cYjTzTN+v8ls3cbvHaJ9yV+3533kY+JSue1VqmBIwyDTwpmFQAG+ebA+89/nlsref3Gy3Hzzvu2ltsbe/vvvjX/5VwQKwOC2kSiPP5P0qv31Tt3yE9pF3VV946Pyv346DwBrG2fCmYVAAr25aBXDshGolpKgt9vrYIx8WLACXL4KdqeeZul/lJ97kWThc+8i7qi9cHfwjVsNpoBrG2fCmYVAAL7c/aF70bPv4+e710+3jrzpvWV3s7dPt+893b3+zffTLFRdAnYmPXf5V8+RPQ4bfdORdVRduvvIftpL9UjlxBg83g0wDbxoGBfBs+1Hjklc3hxf1b560hvmeF6fla4u9PL4ReNGqkwlb5/CSsAPbAhAm+pifYrjM+/bfejSPh5pBpoE3jeUL4O3T1pg/DfHjqH+9/6T/p88v137UXuzuDcDHmTvQN27iy+BwXAtAG+kjfoxtUzki3uwDNdrY7Q3aMRhkGnjTWL4A3jx5/Hc/qw74/XuC+2F+/+HQ8RjBo9OAPxdAdbE3T7IHDORtm/o6OBzTAhh16/oUH75sg4F32r/JAyJXlh+69HAYZBp401i+AE7HgC+v4M/vCV7dPP5qf6T3w692b39zPiR8KoDaYvv/+/L/2W7f//S84u8cGR/pyGVayKvwJr95kzZ8nLfN8MXz83/onWaXGvtYr3zPAJAQnhAvt/sB/0+fXI7e1gug8XlQvgA+ue+R8wEFCqCX/NaNHYbt2w6+vVQA9TIYvJZSBbD+XQNAQHg+nAb85VhwZbK/93ltzL99uj1Ru+a9z19uDz3y9tcFzwK6PMunvUsKw+OLYC1FI70NX7y6ZHX+967lfHF2qXGZN+MWHwMfZWjgTWP5j4BOvDyf9Nk189MF8Pirl6eX/s8KngVkPv899quEpJHehi+emvgD1lK5IrfUqIneLJ+SMMg08KbhUwDHkzqbBXD6nvDle2GZj4CqHxsVKoCVnwZahOQoHOlt9ORN3qpn/mdulVxoWAoKwAi8aTgVwHly10/vaX6mkzwL6Fwflx4pUAAm54bncNiv0qNwpLfRkzd5q575X7lVSpzH/GeQieBNY/ECOJ/AX/lC8GnEp0/wbx0Nvl/s2BMvW18fXtRPKIdsC3dUZhaGeNPmbuJW2R+DG7c+TgP1AW8aixfA6UP76qCvfcX3xXGinyd7+pvAz1rHkq+jAKIG0VDWUwDj18cXwXzAm8byBfDqZn/6zuufVV653/+uz/FHft482f/iz+7Lm1NBnAugttjdaj54XvYsoBJ+Qtk5HKdOJ7iKApiylhzuO5wreNNYvgDuBvr9Id7nhzY4zO/X1Z/5fHmT+ZnP5GKPWr8IsaifUHYWZ6om7z/Gm7ax7VtNCxeq3HyHswVvGgYFsHv9l3dz+8PD6//TyTyv99/q+uD4luD+t4A+Td2yvVj73xBY1E8oHgWQ/PA8yJu2ra1bFfkNjWnryGG+w9mCNw2HAghmUT+hmBRAionfvxOu7LpZ87oS/5DCxFXkMN/hbMGbBgUQ6yeUVRaAuDmjbmb8oJrvcLbgTYMCiPUTisVB4DSyN3GDxt3M+EF13+FcwZsGBdCJ42y9EHka6MS1qtozb2lyW3m6dOQ7oRU/IUMxzoY3DQqgC89X12cCvwg2dcvLFkBuup8vpQBmwTgb3jQogA5cP185EbdfTd7yogWQG++XS8cUgPMjyiBTwZsGBZBn5MvK+Qnbr6ZveckC2GzSeSqXjghs/YgyyFTwpkEB5KEA5i2A2ii/TX3Any2A4W9ZzB9SBpkI3jQogDwUwKwFUHsxf5v8gD9fAENf2Ps/psbDYs2DLBTjbBRAHv9hEbXiJQrgfI+NsT+wAFIf7Wcusn5cGWQaeNOgADownhMH1nQQuDmVK39nJ3ZPyq6b2D6yDDINvGlQAF24TokjgfvV1C0vWAAd83rA/E9+ocC4ARhkGnjToAA6sZwRZyL3q4lbPlj76X6GFMColJmbuTcAg0wDbxoUQBeeM+LMCvars+EBBTAuQe52FICOcTa8aVAAHbgOiRMPf7+qGFbeAAxZ9QM7Dswg08CbBgWQx3dKHHnw+1XNcHr+y49C1+12vg8tg0wDbxoUQB7fKXHkwe9XdcMV09Ur1Aeh43Y73zd3DDINvGlQAHkeUgG4pVQKIHeF+hjkb7db8vBO9/0yyDTwpkEB5HlABWAXs2QByO2Wvd2u68pgeh4qBpkG3jQogDwPpwD8co4/CDzwCoH2ehZ8QvZtGINMA28aFECeB1MAhkFHnwY6+IrRJNa03BOy96FikGngTYMC6MBurDZYqgAG2t8G0gAAIABJREFU3NPoL4K1Lrv8v9577fyoKPVZEgWgYZwNbxoUQBfe83+pAhhyV9N7t3lP+Xs9XZNcourmvAAFoGGcDW8aFEAn1vN/oQIYdF8FPnlrv3hP3+umQe7ayiooAA3jbHjToABi/YSyyEHgYW2je2vO83oX5H4QLtsAydVxEFjDOBveNCiAWD+hLHIaqE0BHP9IFsBlwVEFMIfEHncPZIezA28aFECsn1AW+SKYSwG0r2kuXV9fdRWZcP2bVYLu+3goO5wbeNOgAGL9hLJINpMCSMz11kXVJW/7C2DIdoXDDqeBNw0KINZPKMtkGzQnow8CJ8Z94oLmsqdLk+FaHbMI7HAaeNOgAGL9hLJQtq4pebom+jTQ9sBPvtRPLJ49DZQC6MU4G940KIBYP6Esla17/t+P2I5svTO2PvWTN2u95K8s0Z7kjfl/FNfIQQH0YpwNbxoUQKyfUOyyXSZoh7ciQ3bTnOnJ63IX7FI5KIBejLPhTYMCiPUTilu2ygjNeys0ZTsKoHUXyQJo39hh/rPDieBNgwKI9ROKW7YhBVDsdXZHATRf3KcKIHVrg/nPDieCNw0KINZPKG7ZZi2AzjWlX9r3FYDDL3+ww2ngTYMCiPUTilu2eQtgxEc2zSVzBWAAO5wG3jQogFg/odhlu8zUOQpgxEc2jSUpAA3jbHjToABi/YTil+08UvsPAk8ZvacbD19Jfcn0QWAL2OE08KZBAcT6CcUw22mk9p4G2hq+I4bx5MmdPA3UA3Y4DbxpUACxfkIxzpb2dj9xkw2QGseNS6qv+zOz+3IH7ZtX06VW7wE7nAbeNCiAWD+hGGdLejvO7UoBtE7VTyze/LPjI6Tamjte4T80cS4YZ8ObBgUQ6ycU42wpb5sEravaizf/TK4gewfJBnhg4mwwzoY3DQog1k8oxtkS3vLjOTmvO5bJDPjeBS7pim5rUdjhNPCmQQHE+gnFONuYAkiP66EFkP6BOAogAuNseNOgAGL9hGKcbWABtC9PLN78MzfhKYBojLPhTYMCiPUTinG2YQXQvji1aO7WFMDcGGfDmwYFEOsnFONsqcl7nsj5yX7bvqh9nDgz4YfPf2dx7HAaeNOgAGL9hOKbLT17z5fmXre3L8l9xN/5q/99899YHDucCN40KIBOsiPEgvL7VaHtzU3ffCvkB3lqyWQD9M7/y2UrfkKGYpwNbxoUQBcdLyIdKL5fFdrentffmaXbt87P8PP7iMoilT+Td1+5fsVPyFCMs+FNgwLoYMwYW4KJm9b6q9T2jimA9qJqAdy2rqptZnWVK35ChmKcDW8aFECeMXNsEaZuWuOvYts7YkWJJeUCqG7VZf4nzyKauIGBMMg08KZBAeSxnxfypqVfOc9bALXOydw8f136bhqLpxc2fkBvGWQqeNOgAPLYzYtmFHXT6hvWnv/FPgMalKGnAZK3G3Q3tXVQAAUwzoY3DQogj9u8aGWxLYD+o8nd93i4JLOO6oXdd0MBlMY4G940KIAOvMZFO01UARQKOyhBx10OiNK5SL4AVvyEDMU4G940KIA8Xi8YE2lKF0DB0157tOcLoKDubAGs+QkZinE2vGlQAHnWVAD1raivqTEmJ6c8RNs1Lry/ol06jW0a4LsZvHvJxD3WxLk8vCcYZBp406AA8jzkAqgsl9qM0VN3VMjb+n6VGPatAhh2WLcetn/hyvW1e9qllvCAQaaBNw0KIM8DLoDk5Et89Sv51/SMtf0qOezTDTDA+GWBIQ9P5drqwrvbxIUeMMg08KZBAXTgNR7aabKblp208yTcf8remrHJBsgfjui9i5GbVVt4l7rQAwaZBt40KIA8buOhlSW3aZXg4yfl5IDDCqD2Xd16K1AArhhnw5sGBZDHbjw0ozzoAmhfSwHcMshU8KZBAeQxHA91VlAAmQYYcBcUwPwYZ8ObBgWQZ4bxMG3lowtAv6thXO6n7yBwKuylAQbdxcjNqi7MQWAN42x406AAOphl/k9Y/diDwPIdDeZ8Pz2ngabCXvIOu4uxD09lYU4D1TDOhjcNCqCD6ME5df0jTwNV72YMyTFef9WeCTs44WXBehcMuuH9gr1fBKulnbUiGGQaeNOgAPJEj87J6x/+RTDxDlTGbdV0z4NvfVywb5/YVJj5TQKDTANvGhRAnodcAIsydrOGL59/vT7qPUCPuE2K/nBFYJBp4E2DAshDAWiM366+pU/XppcbfH8DF0zO/7kagEGmgTcNCiDPwyyAGV+tZhC2q3/+508SHT6jKYCJGGfDmwYFkCf8uS+svrZ4atPmHFYZSnvrnsUjZjQFMBHjbHjToADyxD/3pfl/uUFi03oSzzLICnvrmcUUwHwYZ8ObBgWQZ4bnvjT/zzdpb1pP5JkmWVltwwtg8Kp8DwLPd08KKx5koRhnowDyzP3k76UZaGwBzLY5Re+mexiPG9HHBW1PA7Xa3dqseJCFYpyNAsiztgIYPSqnJdVv3V5XY/5fNkKa//1PyPvFjmude/7b7G8tVjzIQjHORgHkueYCmLrdJZ+Pl9TV+d/8oYvBK7q1fULa7XBNTL3toQA0KIA8ds/H/gLofA05Ynsmb3jR5+MlS3X+V08MHTH/B70DWAa7Ha6Jqbc9FIAGBZDH7/nYyDPyNNDh2zN9y8s+H2tJqq/6xwStLGv6hPTb4RqYettDAWhQAHkMn4/1OGO/CDZ4c9wKoAYFsBim3vZQABpXUAAyl+fj0kkuTEszdGsGbvkyajbVdCMeoaEP54IPuN/+BjAGx11XLrcVviAbuDHDtrxriZneAYw5Wj3wHcCij7j17rbqV7KhGGe7gncA8ratsABqdGzZ8Pmf+mWe22LPx/T6a/fcWiSb+3Kznt/RXrgBFrrrAax4kIVinI0CyLPyAjhuWnr7hs//1PdySz0fc+vvelw6kp+v6vuXdBZ8zBlkGnjToADyLD4M+pj02GUm6emv3s1O2jlfVOT5mE7XXQCdD9npCgpAwzgb3jQogDyLD4M+pjx2mVE6fHtz7XFPiedjLl3X4zLsMaMANIyz4U2DAsiz+DDoo2ABNH5ZYdQKUpdNfz7m6yn7uPSUw+3lCMWAe52aX4RBpoE3DQogz+LDoI+iBVD/ZYURa0iudLD23J0lh/mI+d95fGBXv6hnq2aFQaaBNw0KIM+VFcDYX1boPEQ7VHvu3tLDfMT8T52cdL5q17jRkEQzwSDTwJsGBZBn1QWQbICRW5yes+M7pL1sbpZPmf8Vds3Lu7dqThhkGnjToADyrLsAUh8CTd/icQ0wbJq3r+jfnK7rLgVg+AgzyDTwpkEB5DEcD3VKfBGsPjWnb/CoBhhUAInQfXfcM/8pABHjbHjToADyGI6HOgW/bHXazBLbO9zbgALI3m7EvVIAhTDOhjcNCiDP0uOh957H/hpox/2cb1Vgc5UCaC7cvLC2QHrl+Tttzv9bCkDDOBveNCiAPAuPh/67HvnvAUy4J2F1g1bZ1wDJv3Jrz95nc/63C2DwtoXDINPAmwYFkGfZAhhw34lN0xI3pmvq8pFrG5qiuwGaS/WsPnuX5xscl9g17nzols0Ag0wDbxoUQJ5FC2DInbc3bXLk2o3VNY3JkG+A1DLtv84LNP9XYg3nP3eJ1ZrAINPAmwYFkOcKC6B2a31V4243uQCa12VWcfmLAtAwzoY3DQogz/UVQO3mU9Y16lZTC+DyZ2o9jQUP/4MC0DDOhjcNCiAPBaCua9zNRhZAc8xvEiSjXP4nBaBhnA1vGhRAntgB0bfeAfdd7CBw89YTC2Ds7fLLN6LUlm+HTiRObM9t6yDw2O2LhEGmgTcNCiBPaAH0r7h/iVKngTZuPLUAxt+wa/5Xs1QvT9xd+44rl1Sv3DXX7wODTANvGhRAnikFMGy69y/TeSe71HKTRlotlrr1greu+Z/7cL99d6MLYJqsEBhkGnjToAA6mDb/u243pVsuVD/KnrKeCrWViWsus3F9H+53LZeKUr16xU/IUIyz4U2DAuhi2vzvuGXBAigzbM+05qe2ikULIBnlYRRAwUcyAF9vFIAIBdCFOMb6J2C5Aig1bUtSKFGBAkgdBHYuALdHsoGtNwpAhQLoQB1kFIBNAbS+JJYoAB95fg9lnRUPslCMs1EAeeTZOuCGRZ7qpgVQLNJlNckVtid711KV5epPSB97ho9lnRUPslCMs1EAeSILoMjYWXsBtF6+J69szf/+9127xIVTsxbA8LGss+JBFopxNgogj/58HHK7As/ziIPABSg4xy4rycz/FAOShYSdjFOWJCseZKEYZ6MA8kx4Ps7zNA44DbQEs8yxxNzvv9NEMqeh65QlyYoHWSjG2SiAPFOej7M8i6tfBHMaG3ltA1L2LdKe/Od76324zAvA8N1cnRUPslCMs1EAeaxmQ4rKpnnl7Jr/PSn7FsnO/82AmzeXvnV7kH2SJFnxIAvFOBsFkMdrNiS4bJpb0K75P+hDmr7rMwXQc/NWXwwLNSM+SVKseJCFYpyNAsjzcArAL2lK+4CUfYt0zP/6CUG96282wJiNi4RBpoE3DQogj99YbUABdJRB7wpqlw3fsmAYZBp406AA8viN1QYUwOgCMFRVh0GmgTcNCiCP+6ygACiAeTHOhjcNCiDPDLNi2sp9DwKn96sBKfsWqQ15Yf4bqqrDINPAmwYFkCe+ACau3fY00Nx+NSDl4Bfw6V+BmH4PC8Mg08CbBgWQJ7wApq6++ZM2BSKVIqN9QMrjIuclazdpzvn0G4GeuzZTVYdBpoE3DQogT3QBTF7/ivers5eaoOSkH/bqv3blisWFYpwNbxoUQJ51FcC8r3tHa6/HO4upG2oXwLBX/803W75PSOt3J8beKAARCiDPqgogckMSjNVej9ca6+kX+0M//Wmpth2zMz9KY1nxIAvFOBsFkGdNBRC7JW1Gam/EG1oAmcXy66/+YIS6aYHM/SiNZcWDLBTjbBRAnugCKHoQeNg9TdiUcTduah8zn9MFcP5/SgPUrrcds+E73FRWPMhCMc5GAeSJfz5OXPucBTDy1g3tY+bzbccr/f7vAfTfge+Y9U12ZMWDLBTjbBRAnhmej9NWPmMBjL15XXvfgG5dPawB0gXQuJf61E/dmQ2+yY6seJCFYpyNAsizoufj1E0Zffua9saEHrL6ngHfUQCNe6nfStqW2fBNdmTFgywU42wUQJ41PR+VLaksH1wAYxpgIK3tPl9o/LDaBjuy4kEWinE2CqCDNT0ftfnf/lB+aLRxBZC6gzHDPtcAybs1flhtg92z4kEWinE2CqAD40lxIPSLYP2DtDPayAIYcRggOevHFIDzmLUNdmDFgywU32yT97fGsF1VAYyeenNz3LSQhJlJOvCWvQeB2+vKju7DRX0FkF4g9xA6P6a+w8J5kOFNYvp4awxbCmBO7jctJmJz40fN/82m5zTQzFDOTfu+twP122cXOWP7hGSQqeBNoMB8awxbCmBODpsWlLG18aPm/10DJC9uLFRdc88A753u/UtcaO8TNo8yg0wDb+PJPT3G0Bi2FMCc7DctKqS43u6bHS9PTe6pBdC7QJXWPuHzMDPINPA2nhKzozFsKYA5iSwA8Z1FZ5zTFSMm9zA6VpN8bd/cJ4IUKjDINPA2ns4n60Aaw5YCmMqYuxtfAGPWLm16Is75j9pMPi00Zs7nqN3vkC97pT+fGr+1ATDINPA2nhL7fWPYUgATGXV/owtg3NYoW96Ok5rRlYVal3QM+hz1taRj1PAtAIsQWUwH2R4KQKDAbt8YthTANMbd4diDwHNszuk+atkaQ7oapGOWa28P+jb1HK6defnZ65Eii+sgu6UANKbvb41hSwFMYuQ9jjwNdJ7tub+HXf3dySb5wc9tc5laJVyuHdcE1Ri5eEuIGYBJjCy2g4wC0Ji+uzWGLQUwidYY62bkF8Fm2p7DHey1N+Zya8o3U50ua87x9lLd1G+ZdjDk0tmZf4cbie0gowAkCuxujWFLAUyiPcY6Gblp6XV33NuETb/T3hrLyS1LDe+MhO6xP0hdbpl5H+Yc8+9wI3EdZLcUgEKJ/a0xbCmASbQHZufiJQqgYxM7r+i5r1QBpFaYmt3ZaZ6Y9WlyCdOrHbhJ8WTTuWA6yPZQAOMpsb81hi0FMI3mEOu+67Gb1jlThyxdvaL7rloFcL5l8j6qy7UvyS3bQ3aL+uMvg3e6W9tBtocCGE+J/a0xbCmAiQwYYxdGb1prjR131HtF1520CqArT2N705dop4fm722oslmxDndrO8j2UADjKfFsaAxbCmAqvWOswvhNa65v0Lgcdnn9+sZB4I44keTvTTYWy8hwc2M6yPZQAOMRng4tGsOWApjM8R6H3Hly00aPt8z9tK44/s/EDap/VK/ulTd8lKfov30u+ZADLNWEAxYsxLz3NhbTQbaHAhhP64ki0Bi2FMBU2rMtv2xq08YFTkzL9lU9wRJLDZ2ylWVzMzzP7dACaF++G6qpvqI5YJBp4E2gwO7dGLYUwEQSsy2/cGLTxibuuJv0FM0Uw+nPxPwddPejC6B1Z7mFUh+q7QYmHLMphWCQaeBNoMDe3Ri2FMCAdQ64y9v2g1OdetlVjYp8WKxj+eoVlRXXb9EYt4kB3LnR7dUOo31fmYV6TjTqNzRkuYIwyDTwNp4Su3dj2FIAQ1Y57B7ry9ZnV+OC8ZEvy3UsXrmiPT5vW7P1tnXRgFCbJH3DfVBdZO5gyNHpsTrLwSDTwNt4SuzejWFLAXStbNAZlJclqkv2TMCxkQePwOSKK/9phei+pCtIcdJ3MOZsoO7l+m8/noh1lsN0kO2hAMYz9GnQRWPYUgCd6+lbYXaBYcNucOQhWXqTZTI0L+nc8N7tmsSAexi42fnrBtkbTMQ6C2I6yPZQAOMZ/DTooDFsKYCu1fQOnsz1yrBr3Lz2P0fNwEaGfKj0FYnPic4XL18ACUWpze56qIbpG0bEOktiOsj2UAACBfa3xrClADrWkhw96YWHrKG1wsz6j39XrhqaJJUiG2pg3vrHT4O2TKbXXUNRasvrf6W2Me1PIWKdRZn+zcMwKACF6XtbY9hSAPmVZIZPctFBa+gbbff/HbJo5T+1D3JSa+nfJilwCL1R6oEbWz7wUa1cNHbnyK514oqimP7bI2FQAArTH5/GsKUA8itJD5/Mkn0rGPDStnuJ6qKtVXbetuvKnk12pxo+8eh0PVTJG8n7yrT1hFHg1weDMJZ261sABR6fxrClAPIrSUyb/IJ9K+j7nGX8/C/DiHs2JP/RTv2ixo1uC426zH37UOQfoIjA2pptAZR4fBrDlgLIr+SwotyASRwrTV8xgDE3k+5g5AofTiN0HkevXNRaKnmjCfvKlLUE4loA5toogEVZ1E9rWORW2hpFmSsGMOZm0h3MusI5yX0O17yotUziNpN2lSlrCcS0ANbmbS5KeGsMWwqgdzWZdbZGUeuaETO9vb6OhQcuudQKZ6SZPb8nZP+mACrMtT1r8zYXJbw1hi0FkFlPa7X5O2tdfbqkd4ClR1JqmerCw1Y7lOIrnI+WjI49oXcBdUeZvpZATA8Cr87bTJTw1hi2UgG8/eRmu/3gec9FvbfM3WZRP7n1dt1b6/rEdEpM2a4zVZKLljhtM5V7yvoWpO2ia0+o/cFB4AzzbM36vM1EAW0FCuDNk+2e9z7vvKj3ltnbLOpHuLeOe6xen5xfufW1Dz9Xb9Jc1XDOa6qFaC2k34F0CLlmath6UtYSLvsevWGPdM9KbOeY7RfB1udtJqZrK1AAz7aPn+9eP90+/qrrot5bZm+zqJ/x99Z5j9Xrk/Mrvb76ZE4v2Zh9neMysZbaZcclLgs2btm78vrd5K5K/++mqdr/yGxlylrCZfZxuS006vrvZlFWPMhCsfU2fa+dXgCvbg4v2t88efTLjosqvNh+lFgsf5tF/YTe4+42Navq66ov0L325uLpMTwkY23knm/cvGVtQlcHczJ3bYnaWmvL3Laua8fdNTYqZSG9RdFYz7E1D7JQfL1N/gb19AJ4sf1Bfa63Lnq9/3D/p88v136UWCyxmgIFwDfMRay9IU7EOBveNJYvgGfbjw//fXmc4K2LXt0cPtx/9HGzAGqLJVZDASyHtTfEiRhnw5vG4gXw9unxM5tXN6dP7+sXvXmy/fCr3dvfnA/vngqgtlhiNd85MjoSAACMJ6AAWp/tUAAAAIZMKoDTS/zaRY0xvz1Ru6bxR/0eFn2HFIpxNmtviBMxzoY3DfuPgBozP10AyXcAFMCCWHtDnIhxNrxp2BfA8ftdle94Df0IiAJYEGtviBMxzoY3jcULoO8soPaJ/ZwFdMI4m7U3xIkYZ8ObxvIFcJrnte8BXC56+3T7cfoG9VsmVkMBLIe1N8SJGGfDm8byBdD3TeAXxx93eHn6kYc5vwnMfiVi7Q1xIsbZ8KaxfAHcvcR/v/EjPrWL3jzZ/8jP7sub0zuBcwHUFkushgJYDmtviBMxzoY3jeULYPe68jOer24OL+CrF+1e3n8TePth5y3rf1AAC2PtDXEixtnwpmFQALvXn9wN7g8OL9yPBVC96PRbQJ9237LxBwWwLNbeECdinA1vGg4FEMyifkIxzmbtDXEixtnwpkEBxPoJxTibtTfEiRhnw5sGBRDrJxTjbNbeECdinA1vGhRArJ9QjLNZe0OciHE2vGlQALF+QjHOZu0NcSLG2fCmQQHE+gnFOJu1N8SJGGfDmwYFEOsnFONs1t4QJ2KcDW8aFECsn1CMs1l7Q5yIcTa8aVAAsX5CMc5m7Q1xIsbZ8KZBAcT6CcU4m7U3xIkYZ8ObBgUQ6ycU42zW3hAnYpwNbxoUQKyfUIyzWXtDnIhxNrxpUACxfkIxzmbtDXEixtnwpkEBxPoJxTibtTfEiRhnw5sGBRDrJxTjbNbeECdinA1vGhRArJ9QjLNZe0OciHE2vGlQALF+QjHOZu0NcSLG2fCmQQHE+gnFOJu1N8SJGGfDmwYFEOsnFONs1t4QJ2KcDW8aFECsn1CMs1l7Q5yIcTa8aVAAsX5CMc5m7Q1xIsbZ8KZxBQUwie98Z+kEDxO8iSBOA28ahb1RAHAAbyKI08CbBgXQDfuVBt5EEKeBNw0KoBv2Kw28iSBOA28aFEA37FcaeBNBnAbeNCiAbtivNPAmgjgNvGlQAN2wX2ngTQRxGnjToAC6Yb/SwJsI4jTwpkEBAABACSgAAIArhQIAALhSKAAAgCuFAgAAuFIoAACAK4UCAAC4UigAAIAr5WEXwNtPbrbbD55nL0pcD7ukl9/95Xb76HjRmyfbA+99vkg6Y9ri6q7Y4dI0vbx9uj2xF8cOl+fNkx/U/i484B50ARz3m+puU7socT3skl5+ff8MfPTL/R+vbng+JkmIq7lih0vT8tIoAHa4PM+2tQIoPeAedAE82z5+vnv9dPv4q/RFiethl/Lycvvor3b7iw770sv6PgcnEjtUzRU7XJqsl1c3h5cc7HA53j7b1t2UHnAPuQBe3Rxfdt2/bm1dlLgedikvdy/IPt4dLjr899n2o8XCOZPaoaqu2OHSZL3c7XcHe+xwGX73s229AIoPuIdcAC+Oal5cdp/aRYnrYZfy8ubJ8V3k4Zn49ikDLElih6q5YodLk/Xy4v61Kztchhfb7Ydf1gqg+IB7yAXw7P5la/UNZO2ixPWw6/RyKIA3Tx7/3d0rj59yLLNBQlzNFTtcmpyX4xtOdrgcL97/tCGt+IB7wAVwft3w6ub0GVjtosT1sEt6O3F6Z3k8PvfxAumMSYmrumKHS5P1cnoFyw7XQW26lx9wFMDV0eHl/hn58u6N51e7f/pkyxvzGilxVVfscGlyXs6fXbPDdUAB5Khs/+k8qNpFiethl/R25OX9M/D0woxDc3VS4qqu2OHS5Ly8PJ29wg7XQa4ACg24dRQA7wBGkPXy8uZR7T34S05nrNG1Q+1dscOlyXg5nXp2gR0uAe8AclAAGjkvL5rvwHkhW6drh2q8ImOHq5Dx0t692OESUABZOAtII+3l161PYJljDTp2qIMrdrg0aS9tS+xwCTgLKMvp9Nfa9wAqFyWuh13ay9tn2/fPB1KYY2na4uqu2OHSpL2cP/Fnh+uiLqX4gHvIBcA3gTXSX2i9vPg6/vpI+zPaaychruaKHS5N0kvl21/scB3UC4BvAle422Heb/wURu2ixPWwS3p5UXX06mZ/Vt7rn+GtQUJczRU7XJqkl/O3z9nhOqkXQPEB95ALYPe68mN4x5+Vql5U/wPOtLydfo73+MMjL46/zcg3MxskdriaK3a4NAlvtQ/82eHyvDx/Wy5kwD3oAti9/uRu8z847Een/apyUeMPONP09vI8/+/3ttf7fxzgQ7y1SO1wVVfscGkS3mrnfLLDZWkUQOkB97ALAAAAZCgAAIArhQIAALhSKAAAgCuFAgAAuFIoAACAK4UCAAC4UigAAIArhQIAALhSKAAAgCuFAgAAuFIoAACAK4UCAAC4UigAgEH8w8//+Waz+ZPv/ffzJZ9tTnz3x79tXvTOv/ibZXICDIcCABjAH350Hu1/+ovjZZdpfzfvf9G6aPOt3y6XF2AIFABAP1+/W53s37+/sDbt/9nfti6iAcAdCgCgl6/3r/EPH/7843/ZV8FPDpd+dprw3/zvHx1b4XzR7pv/fF4OwBUKAKCPP/7w7tX8r45/fPPZ6QOfy7TfL/HtxkW7Lzb3lwHYQgEA9PFF/dOczzataf/Nf2wXwO/f5TMgMIcCAOjhbrq/84vK33cv9w+f+NffARw+7qkWwN1lFAB4QwEA9HD3Ur7+Wc5n95/uX44B/MOPjv+z8Q6Aj4DAGwoAoIevz+f91C+onvLzvfu53zgGUL8ZgBsUAEAPXzRP5zm+tq8WwJ/eHyO+FMA//HxT/+AIwA8KAKCHIQVwPjGoCp8AgTkUAEAP+QKovtw//O9aAfw5h4DBHAoAoIf8MYA2X/AmAAABBUlEQVTqaaCHtwCXAviT7/1qB2AOBQDQQ+9ZQLvzEd/POPMTHhIUAEAPA74HkHhTAOAPBQDQR/83gXkHAA8SCgCgj0G/BXQ8BkABwAOCAgDo5ffv1n8N9P6YcOUsoB+dzwKiAOABQQEA9NP/7wG0fwsIwB4KAGAAvf8i2L8/XkQBwAOCAgAYxB/+uuvfBP6/p4soAHhAUAAAAFcKBQAAcKVQAAAAVwoFAABwpVAAAABXCgUAAHClUAAAAFcKBQAAcKVQAAAAVwoFAABwpVAAAABXCgUAAHClUAAAAFcKBQAAcKVQAAAAVwoFAABwpVAAAABXCgUAAHClUAAAAFcKBQAAcKX8/+c/ec/1y6xmAAAAAElFTkSuQmCC" width="768" /></p>
+<p>Looks like there is no point in paying above 8 million or so (I’m
+just eyeballing this number). I’ll choose that as a cut off point. There
+are also a lot of players with OBP==0. Let’s get rid of them too.</p>
+<pre class="r"><code>available_players &lt;- filter(available_players,salary&lt;8000000,OBP&gt;0)</code></pre>
+<p>The total AB of the lost players is 1469. This is about 1500, meaning
+I should probably cut off my <code>available_players</code> at 1500/3=
+500 AB.</p>
+<pre class="r"><code>available_players &lt;- filter(available_players,AB &gt;= 500)</code></pre>
+<p>Now let’s sort by OBP and see what we’ve got!</p>
+<pre class="r"><code>possible &lt;- arrange(available_players, desc(OBP))
+
+possible &lt;- possible[,c(&#39;playerID&#39;,&#39;OBP&#39;,&#39;AB&#39;,&#39;salary&#39;)]
+
+head(possible)</code></pre>
+<pre><code>##    playerID       OBP  AB  salary
+## 1 giambja01 0.4769001 520 4103333
+## 2 heltoto01 0.4316547 587 4950000
+## 3 berkmla01 0.4302326 577  305000
+## 4 gonzalu01 0.4285714 609 4833333
+## 5 thomeji01 0.4161491 526 7875000
+## 6 alomaro01 0.4146707 575 7750000</code></pre>
 </div>
 </div>
 </div>
