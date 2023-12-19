@@ -47,3 +47,6 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# Unnecessary files
+R-Course-HTML-Notes/
