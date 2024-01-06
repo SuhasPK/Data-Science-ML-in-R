@@ -1,0 +1,135 @@
+---
+title: "Interactive Visualization with `plotly`."
+subtitle: "A basic introduction to Plotly-R Open Source Graphing Library."
+author: "Suhas. P. K"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    default_style: "dark"
+    downcute_theme: "default"
+    toc : 6
+---
+
+```{r setup, include=FALSE}
+## Global options
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+## INTRODUCTION
+
+Plotly is a versatile and powerful data visualization library that finds extensive use in the R programming language. It provides an interactive and dynamic environment for creating a wide range of visualizations, including plots, charts, and dashboards. Plotly supports various chart types, such as scatter plots, line charts, bar charts, and more.
+
+One of the key features of Plotly is its interactivity, allowing users to zoom, pan, and hover over data points for detailed insights. Additionally, it facilitates the creation of interactive dashboards, making it a valuable tool for data exploration and presentation.
+
+In R, Plotly can be seamlessly integrated with other data science and statistical libraries, enhancing its utility in exploratory data analysis and model interpretation. With its user-friendly syntax and interactive capabilities, Plotly has become a popular choice for professionals like yourself who engage in data science and visualization within the realm of physics and related fields.
+
+[Click here](https://plotly.com/r/) to explore more.
+
+## Why use `plotly`?
+
+-   **Dynamic Visualization**: `plotly` enables dynamic and interactive visualization in machine learning and AI contexts.
+
+-   **Exploring Complex Patterns**: Data scientists use `plotly` to visually explore intricate patterns and relationships within datasets.
+
+-   **Model Evaluation** : In machine learning model development, `plotly` aids in visualizing and comparing training and validation metrics.
+
+-   **Interpreting Prediction** : `plotly` supports the interpretation of model predictions through interactive charts, enhancing transparency in AI systems.
+
+-   **Seamless Integration** : The easy integration of `plotly` into machine learning workflows enhances overall interpreting ability and communication of results.
+
+-   **Enhanced Communication** : `plotly`'s visualizations contribute to a visually compelling representation of AI and machine learning findings, facilitating effective communication.
+
+## VISUALIZATIONS
+
+Here, my implementation method will first plot using `ggplot2` and then make the plot interactive using `ggplotly`. Here, I have small code chunk. The code chunk makes sure that to import the libraries, if not installed, it installs and import the libraries.
+
+```{r libraries, echo=TRUE, message=FALSE, warning=FALSE, , echo=TRUE}
+if (!require(ggplot2)){
+  install.packages("ggplot2")
+  library(ggplot2)
+}
+
+if (!require(ggdark)){
+  install.packages("ggdark")
+  library(ggdark)
+}
+
+if (!require(plotly)){
+  install.packages("plotly")
+  library(plotly)
+}
+```
+
+I have programmed a complicated looking code chunk which gives me visualization of normal distribution. There are more efficient way to make it. But I just wanted the plot to work and it works.
+
+```{r bell curve, echo=TRUE, fig.height=5, fig.width=9, message=FALSE, warning=FALSE}
+
+# Set seed for reproducibility
+set.seed(1234)
+
+# Generate random data following a normal distribution
+data <- rnorm(10000, mean = 0, sd = 1)
+
+# Calculate mean and standard deviation
+mu <- mean(data)
+sigma <- sd(data)
+
+# Create a data frame
+df <- data.frame(x = data)
+
+# Define custom x-axis labels as character strings
+custom_labels <- c("μ - 3σ", "μ - 2σ", "μ - σ", "μ", "μ + σ", "μ + 2σ", "μ + 3σ")
+
+# Function to calculate normal density
+normal_density <- function(x) dnorm(x, mean = mu, sd = sigma)
+
+# Calculate the area under the curve between mu - sigma and mu + sigma
+area_sigma <- integrate(normal_density, mu - sigma, mu + sigma)$value
+area_2sigma <- integrate(normal_density, mu - 2 * sigma, mu + 2 * sigma)$value
+area_3sigma <- integrate(normal_density, mu - 3 * sigma, mu + 3 * sigma)$value
+
+# Plot the normal distribution curve with custom x-axis labels, vertical lines, and shaded areas
+myplot <- ggplot(df, aes(x = x)) +
+  stat_function(fun = normal_density, color = "blue", size = 1) +
+  geom_vline(xintercept = c(mu - sigma, mu + sigma), linetype = "dashed", color = "red") +
+  geom_vline(xintercept = c(mu - 2 * sigma, mu + 2 * sigma), linetype = "dashed", color = "purple")+
+  geom_vline(xintercept = c(mu - 3 * sigma, mu + 3 * sigma), linetype = "dashed", color = "black")+
+  geom_ribbon(aes(ymax = normal_density(x), ymin = 0), fill = "yellow", alpha = 0.5) +
+  ggtitle("Normal Distribution Curve") +
+  xlab("Number of σ from mean") +
+  ylab("Probability Density") +
+  scale_x_continuous(breaks = c(mu - 3 * sigma, mu - 2 * sigma, mu - sigma, mu, mu + sigma, mu + 2 * sigma, mu + 3 * sigma),
+                     labels = custom_labels) +
+  annotate("text", x = mu, y = c(0.1, 0.5, 1.0), 
+           label = c(sprintf("Area(σ) = %.4f", area_sigma),
+                     sprintf("Area(2σ) = %.4f", area_2sigma),
+                     sprintf("Area(3σ) = %.4f", area_3sigma)),
+           vjust = 0.5, hjust = 0.5, size = 4, color = "black") 
+
+myplot
+
+```
+
+Now that my plot works, let me use `ggdark` to make it dark themed. This not necessary but I find dark themes cool and it makes me look more serious and geeky/nerd.
+
+While was trying different dark themes available in the `ggdark` library, the color of text annotation and background, both were `black`. Due to this, the text annotation was invisible. Once, changed the theme, as the text was black, I changed the color of text annotation to white.
+
+After solving this problem, I thought that I can directly use my `myplot` variable in `ggplotly` function to get an interactive `plotly` plot in a different code chunk. I did implement that and the generated the interactive plot. But there was some kind of error while I was trying to `knit` my `.Rmd` file. After sometime, I just implemented this in the below code chunk. Instead of make two separate code chunks, the `knit` worked with two code chunks.
+
+```{r myplot dark mode, echo=TRUE, fig.height=5, fig.width=9, message=FALSE, warning=FALSE}
+
+myplot <- myplot + ggdark::dark_theme_gray() + annotate("text", x = mu, y = c(0.1, 0.5, 1.0), 
+           label = c(sprintf("Area(\u03C3) = %.4f", area_sigma),
+                     sprintf("Area(2\u03C3) = %.4f", area_2sigma),
+                     sprintf("Area(3\u03C3) = %.4f", area_3sigma)),
+           vjust = 0.5, hjust = 0.5, size = 4, color = "white")
+
+ggplot_myplot <-  ggplotly(myplot)
+ggplot_myplot
+
+```
+
+Although, I have generated the interactive plot and almost happy of what I got. It took more time than I expected. Mainly, because of the `knit`. Finally, my thoughts on this project is even though `ggplot2` is good, it is always better to know other alternatives to it.
+
+
