@@ -1,0 +1,172 @@
+---
+title: "Neural Nets using R"
+author: "Suhas. P. K"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    default_style: "dark"
+    downcute_theme: "default"
+    toc: 6
+---
+
+
+```{r setup, include=FALSE}
+## Global options
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+```{r libraries}
+if (!require(MASS)){
+  install.packages("MASS")
+  library(MASS)
+}
+
+if (!require(caTools)){
+  install.packages("caTools")
+  library(caTools)
+}
+
+if (!require(neuralnet)){
+  install.packages("neuralnet")
+  library(neuralnet)
+}
+
+if(!require(ggplot2)){
+  install.packages("ggplot2")
+  library(ggplot2)
+}
+
+if(!require(NeuralNetTools)){
+  install.packages("NeuralNetTools")
+  library(NeuralNetTools)
+}
+```
+
+```{r}
+head(Boston,7)
+```
+
+```{r}
+str(Boston)
+```
+
+```{r}
+any(is.na(Boston))
+```
+
+
+
+```{r}
+data <- Boston
+
+```
+
+```{r}
+maxs <- apply(data, 2, max)
+maxs
+```
+
+```{r}
+mins <- apply(data, 2, min)
+mins
+```
+
+
+```{r}
+scaled_data <- scale(data, center=mins, scale = maxs-mins)
+
+scaled <- as.data.frame(scaled_data)
+head(scaled)
+```
+
+
+
+```{r}
+split <- sample.split(scaled$medv,SplitRatio = 0.7)
+
+train <- subset(scaled,split==T)
+test <- subset(scaled,split==F)
+```
+
+```{r}
+n <- names(train)
+f <- as.formula(
+  paste(
+    "medv ~",
+    paste(
+      n[!n %in% "medv"],
+      collapse = " + "
+    )
+  )
+)
+
+f
+```
+
+```{r}
+nn <- neuralnet(f, data=train, hidden = c(5,3), linear.output = TRUE)
+```
+
+```{r,fig.width=10, fig.height=6}
+plotnet(nn)
+```
+
+
+```{r}
+plot(nn)
+```
+
+
+
+
+```{r}
+predicted_nn_values <- compute(nn, test[1:13])
+
+str(predicted_nn_values)
+```
+
+
+```{r}
+true_predictions <- predicted_nn_values$net.result * (max(data$medv)-min(data$medv)) + min(data$medv)
+
+test_r <- (test$medv)*(max(data$medv)-min(data$medv)) + min(data$medv)
+
+
+MSE.nn <- sum(
+  (test_r - true_predictions)^2
+)/ nrow(test)
+
+MSE.nn
+```
+
+```{r}
+error.df <- data.frame(test_r, true_predictions)
+head(error.df)
+
+```
+
+```{r}
+ggplot(error.df,
+       aes(x=test_r,
+           y = true_predictions)) + geom_point() + stat_smooth()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
