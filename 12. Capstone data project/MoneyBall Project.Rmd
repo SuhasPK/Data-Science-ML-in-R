@@ -221,12 +221,13 @@ Looks like there is no point in paying above 8 million or so (I'm just eyeballin
 available_players <- filter(available_players,salary<8000000,OBP>0)
 ```
 
-The total AB of the lost players is 1469. This is about 1500, meaning I should probably cut off my `available_players` at 1500/3= 500 AB. 
+The total AB of the lost players is 1469. This is about 1500, meaning I should probably cut off my `available_players` at 1500/3= 500 AB.
 
 ```{r}
 available_players <- filter(available_players,AB >= 500)
 ```
-Now let's sort by OBP and see what we've got! 
+
+Now let's sort by OBP and see what we've got!
 
 ```{r}
 possible <- arrange(available_players, desc(OBP))
@@ -235,20 +236,3 @@ possible <- possible[,c('playerID','OBP','AB','salary')]
 
 head(possible)
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
