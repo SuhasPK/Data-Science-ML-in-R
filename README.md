@@ -14,7 +14,7 @@ The repository is structured in the same way as the bootcamp course is structure
 This way I can generate all `html` files and also publish them in [Rpubs](https://rpubs.com/suhasPK).
 
 | Sl no. | Folder name                                                                                                               | Description |
-|--------|--------------------------------|--------------------------------|
+|---------------|----------------------------|----------------------------|
 | 1\.    | [Introduction to R basics](https://github.com/SuhasPK/Data-Science-ML-in-R/tree/main/1.%20Introduction%20to%20R%20basics) |             |
 | 2\.    | R matrices                                                                                                                |             |
 | 3\.    | R data frames                                                                                                             |             |
@@ -26,7 +26,7 @@ This way I can generate all `html` files and also publish them in [Rpubs](https:
 | 9\.    | Data Visualization with R                                                                                                 |             |
 | 10\.   | Data Visualization Project                                                                                                |             |
 | 11\.   | Interactive visualizations with Plotly                                                                                    |             |
-| 12\.   | Capstone Data Project                                                                                                     |             |
+| 12\.   | [Capstone Data Project](https://github.com/SuhasPK/Data-Science-ML-in-R/tree/main/20.%20ML%20with%20R%20-%20Neural%20Nets)                                                                                                     |             |
 | 13\.   | Introduction to ML with R                                                                                                 |             |
 | 14\.   | ML with R - Linear Regression                                                                                             |             |
 | 15\.   | ML with R - KNN                                                                                                           |             |
@@ -34,7 +34,7 @@ This way I can generate all `html` files and also publish them in [Rpubs](https:
 | 17\.   | ML with R - Support Vector Machines                                                                                       |             |
 | 18\.   | ML with R - K Means Clustering                                                                                            |             |
 | 19\.   | ML with R - NLP                                                                                                           |             |
-| 20\.   | ML with R - Neural Nets                                                                                                   |             |
+| 20\.   | [ML with R - Neural Nets](https://github.com/SuhasPK/Data-Science-ML-in-R/tree/main/20.%20ML%20with%20R%20-%20Neural%20Nets)                                                                                                   |             |
 | 21\.   | Repository WIKI                                                                                                           |             |
 
 : Course content
