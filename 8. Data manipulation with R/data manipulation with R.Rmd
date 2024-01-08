@@ -1,0 +1,169 @@
+---
+title: "Data manipulation with R"
+subtitle: " `dplyr`- Manipulating data, `tidyr`- Cleaning data"
+author: "Suhas. P. K"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    default_style: "dark"
+    downcute_theme: "default"
+    toc : 6
+---
+
+
+```{r setup, include=FALSE}
+## Global options
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+```{r libraries, message=FALSE, warning=FALSE, include=FALSE}
+if (!require(dplyr)){
+  install.packages("dplyr")
+  library(dplyr)
+}
+
+if (!require(tidyr)){
+  install.packages("tidyr")
+  library(tidyr)
+}
+
+if (!require(nycflights13)){
+  install.packages("nycflights13")
+  library(nycflights13)
+}
+```
+
+```{r}
+head(flights)
+
+View(flights)
+
+str(flights)
+```
+
+Links
+
+- [Introduction to `dplyr`](https://cran.r-project.org/web/packages/dplyr/vignettes/dplyr.html)
+
+- [Data tidying with `tidyr` - Cheatsheet](https://github.com/rstudio/cheatsheets/blob/master/tidyr.pdf)
+
+- [Data wrangling with `dplyr` and `tidyr` - Cheat sheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
+
+Single variable verbs
+
+`dplry` aims to provide a function for each basic verb of data manipulation. These verbs can be organised into three categories based on the component of the dataset that they work with:
+- Rows: 
+  - `filter()` chooses rows based on column values.
+  - `slice()` chooses rows based on location.
+  - `arrange()` changes the order of the rows.
+
+- Columns:
+  - `select()` changes whether or not a column is included.
+  - `rename()` changes the name of columns.
+  - `mutate()` changes the values of columns and creates new columns.
+  - `relocate()` changes the order of the columns.
+  
+- Groups of rows:
+  - `summarise()` collapses a group into a single row.
+  
+- `transmute()`  creates a new data frame containing only the specified computations.
+
+- `summarise()` or `summarize()`  creates a new data frame. It returns one row for each combination of grouping variables; if there are no grouping variables, the output will have a single row summarising all observations in the input. It will contain one column for each grouping variable and one column for each of the summary statistics that you have specified.
+
+
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
