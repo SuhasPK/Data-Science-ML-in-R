@@ -7,7 +7,7 @@
 
         <meta name="author" content="Suhas. P. K" />
     
-        <meta name="date" content="2024-01-08" />
+        <meta name="date" content="2024-01-09" />
     
     <title>Data manipulation with R</title>
 
@@ -1504,7 +1504,7 @@ margin-left: 0 !important;
       <p class="authors">
            <span class="glyphicon glyphicon-user"></span> Suhas. P. K
       </p>
-         <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2024-01-08</p>
+         <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2024-01-09</p>
            
 
    
@@ -1512,6 +1512,7 @@ margin-left: 0 !important;
    
 <!-- Don't indent these lines or it will mess pre blocks indentation --> 
 <div class="page-content has-page-title">
+<pre class="r"><code>?flights</code></pre>
 <pre class="r"><code>head(flights)</code></pre>
 <pre><code>## # A tibble: 6 × 19
 ##    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
@@ -1525,7 +1526,7 @@ margin-left: 0 !important;
 ## # ℹ 11 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
 ## #   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
 ## #   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
-<pre class="r"><code>View(flights)
+<pre class="r"><code># View(flights)
 
 str(flights)</code></pre>
 <pre><code>## tibble [336,776 × 19] (S3: tbl_df/tbl/data.frame)
@@ -1588,6 +1589,221 @@ single row summarising all observations in the input. It will contain
 one column for each grouping variable and one column for each of the
 summary statistics that you have specified.</p></li>
 </ul>
+<p>I need to know filter data, in November, day 3 and carrier is AA.</p>
+<pre class="r"><code>head(filter(flights, month == 11, day==3, carrier == &#39;AA&#39;))</code></pre>
+<pre><code>## # A tibble: 6 × 19
+##    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+##   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+## 1  2013    11     3      538            545        -7      824            855
+## 2  2013    11     3      556            600        -4      900            905
+## 3  2013    11     3      604            610        -6      844            855
+## 4  2013    11     3      624            629        -5      907            929
+## 5  2013    11     3      625            630        -5      736            805
+## 6  2013    11     3      653            655        -2      925            920
+## # ℹ 11 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+## #   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+## #   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+<p>An equivalent approach of using <code>filter()</code>.</p>
+<pre class="r"><code>head(flights[flights$month == 11 &amp; flights$day==3 &amp; flights$carrier == &#39;AA&#39;,])</code></pre>
+<pre><code>## # A tibble: 6 × 19
+##    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+##   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+## 1  2013    11     3      538            545        -7      824            855
+## 2  2013    11     3      556            600        -4      900            905
+## 3  2013    11     3      604            610        -6      844            855
+## 4  2013    11     3      624            629        -5      907            929
+## 5  2013    11     3      625            630        -5      736            805
+## 6  2013    11     3      653            655        -2      925            920
+## # ℹ 11 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+## #   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+## #   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+<pre class="r"><code>head(arrange(flights, year,month,day,air_time))</code></pre>
+<pre><code>## # A tibble: 6 × 19
+##    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+##   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+## 1  2013     1     1     2302           2200        62     2342           2253
+## 2  2013     1     1     1318           1322        -4     1358           1416
+## 3  2013     1     1     2116           2110         6     2202           2212
+## 4  2013     1     1     2000           2000         0     2054           2110
+## 5  2013     1     1     2056           2004        52     2156           2112
+## 6  2013     1     1      908            915        -7     1004           1033
+## # ℹ 11 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+## #   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+## #   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+<pre class="r"><code>head(arrange(flights, year,month,day,arr_time))</code></pre>
+<pre><code>## # A tibble: 6 × 19
+##    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+##   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+## 1  2013     1     1     1929           1920         9        3              7
+## 2  2013     1     1     2121           2040        41        6           2323
+## 3  2013     1     1     2058           2100        -2        8           2359
+## 4  2013     1     1     2120           2130       -10       16             18
+## 5  2013     1     1     2134           2045        49       20           2352
+## 6  2013     1     1     2312           2000       192       21           2110
+## # ℹ 11 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+## #   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+## #   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+<p>notice how the given fields are arranged in ascending order.</p>
+<pre class="r"><code>head(arrange(flights, desc(year),month,day,arr_time))</code></pre>
+<pre><code>## # A tibble: 6 × 19
+##    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+##   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+## 1  2013     1     1     1929           1920         9        3              7
+## 2  2013     1     1     2121           2040        41        6           2323
+## 3  2013     1     1     2058           2100        -2        8           2359
+## 4  2013     1     1     2120           2130       -10       16             18
+## 5  2013     1     1     2134           2045        49       20           2352
+## 6  2013     1     1     2312           2000       192       21           2110
+## # ℹ 11 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+## #   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+## #   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+<p>Here, I have used <code>desc()</code> to arrange specified field in
+descending order.</p>
+<pre class="r"><code>head(select(flights, carrier))</code></pre>
+<pre><code>## # A tibble: 6 × 1
+##   carrier
+##   &lt;chr&gt;  
+## 1 UA     
+## 2 UA     
+## 3 AA     
+## 4 B6     
+## 5 DL     
+## 6 UA</code></pre>
+<pre class="r"><code>head(select(flights, carrier, arr_time))</code></pre>
+<pre><code>## # A tibble: 6 × 2
+##   carrier arr_time
+##   &lt;chr&gt;      &lt;int&gt;
+## 1 UA           830
+## 2 UA           850
+## 3 AA           923
+## 4 B6          1004
+## 5 DL           812
+## 6 UA           740</code></pre>
+<pre class="r"><code>head(select(flights, carrier, arr_time, month))</code></pre>
+<pre><code>## # A tibble: 6 × 3
+##   carrier arr_time month
+##   &lt;chr&gt;      &lt;int&gt; &lt;int&gt;
+## 1 UA           830     1
+## 2 UA           850     1
+## 3 AA           923     1
+## 4 B6          1004     1
+## 5 DL           812     1
+## 6 UA           740     1</code></pre>
+<pre class="r"><code>distinct(select(flights, carrier))</code></pre>
+<pre><code>## # A tibble: 16 × 1
+##    carrier
+##    &lt;chr&gt;  
+##  1 UA     
+##  2 AA     
+##  3 B6     
+##  4 DL     
+##  5 EV     
+##  6 MQ     
+##  7 US     
+##  8 WN     
+##  9 VX     
+## 10 FL     
+## 11 AS     
+## 12 9E     
+## 13 F9     
+## 14 HA     
+## 15 YV     
+## 16 OO</code></pre>
+<pre class="r"><code>head(
+  mutate(
+    flights, new_col = arr_delay - dep_delay
+  )
+)</code></pre>
+<pre><code>## # A tibble: 6 × 20
+##    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+##   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+## 1  2013     1     1      517            515         2      830            819
+## 2  2013     1     1      533            529         4      850            830
+## 3  2013     1     1      542            540         2      923            850
+## 4  2013     1     1      544            545        -1     1004           1022
+## 5  2013     1     1      554            600        -6      812            837
+## 6  2013     1     1      554            558        -4      740            728
+## # ℹ 12 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+## #   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+## #   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;, new_col &lt;dbl&gt;</code></pre>
+<pre class="r"><code>summarise(flights, avg_air_time = mean(air_time, na.rm=TRUE))</code></pre>
+<pre><code>## # A tibble: 1 × 1
+##   avg_air_time
+##          &lt;dbl&gt;
+## 1         151.</code></pre>
+<pre class="r"><code>summarise(flights, total_time = sum(air_time, na.rm=TRUE))</code></pre>
+<pre><code>## # A tibble: 1 × 1
+##   total_time
+##        &lt;dbl&gt;
+## 1   49326610</code></pre>
+<pre class="r"><code>sample_n(flights, 10)</code></pre>
+<pre><code>## # A tibble: 10 × 19
+##     year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+##    &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+##  1  2013     4    25     1059           1103        -4     1402           1412
+##  2  2013     2    11       NA           1200        NA       NA           1315
+##  3  2013     9    18     1323           1329        -6     1422           1509
+##  4  2013    12    21     1854           1900        -6     2111           2140
+##  5  2013     9    10      852            854        -2     1142           1213
+##  6  2013     3     4     1452           1500        -8     1608           1608
+##  7  2013     1    22       NA           1016        NA       NA           1230
+##  8  2013     2    14     1355           1359        -4     1652           1657
+##  9  2013     2     8       NA           1856        NA       NA           2204
+## 10  2013    12    17      353           1930       503      500           2047
+## # ℹ 11 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+## #   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+## #   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+<pre class="r"><code>sample_frac(flights,0.1)</code></pre>
+<pre><code>## # A tibble: 33,678 × 19
+##     year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+##    &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+##  1  2013    12    13     1441           1444        -3     1614           1605
+##  2  2013     4     3     1501           1500         1     1717           1726
+##  3  2013     1    27     1514           1459        15     1615           1625
+##  4  2013     9    27     1943           1950        -7     2155           2215
+##  5  2013    12     3     1307           1305         2     1552           1605
+##  6  2013     9    10     1704           1700         4     1840           1855
+##  7  2013     8     9      556            600        -4      720            725
+##  8  2013     9    28     1450           1455        -5     1618           1606
+##  9  2013     8    11     2155           2125        30       32           2359
+## 10  2013     5     3     2016           2020        -4     2248           2322
+## # ℹ 33,668 more rows
+## # ℹ 11 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+## #   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+## #   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+<pre class="r"><code>df &lt;- mtcars
+
+result &lt;- arrange(sample_n(
+  filter(
+    df, mpg&gt;20
+  ), size = 5
+), desc(mpg))
+
+print(result)</code></pre>
+<pre><code>##                 mpg cyl  disp  hp drat    wt  qsec vs am gear carb
+## Fiat 128       32.4   4  78.7  66 4.08 2.200 19.47  1  1    4    1
+## Honda Civic    30.4   4  75.7  52 4.93 1.615 18.52  1  1    4    2
+## Porsche 914-2  26.0   4 120.3  91 4.43 2.140 16.70  0  1    5    2
+## Toyota Corona  21.5   4 120.1  97 3.70 2.465 20.01  1  0    3    1
+## Hornet 4 Drive 21.4   6 258.0 110 3.08 3.215 19.44  1  0    3    1</code></pre>
+<pre class="r"><code>a &lt;- filter(df, mpg&gt;20)
+b &lt;- sample_n(a, size = 5)
+result &lt;- arrange(b, desc(mpg))
+print(result)</code></pre>
+<pre><code>##                 mpg cyl  disp  hp drat    wt  qsec vs am gear carb
+## Fiat 128       32.4   4  78.7  66 4.08 2.200 19.47  1  1    4    1
+## Honda Civic    30.4   4  75.7  52 4.93 1.615 18.52  1  1    4    2
+## Porsche 914-2  26.0   4 120.3  91 4.43 2.140 16.70  0  1    5    2
+## Hornet 4 Drive 21.4   6 258.0 110 3.08 3.215 19.44  1  0    3    1
+## Mazda RX4 Wag  21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4</code></pre>
+<pre class="r"><code>result &lt;- df %&gt;% filter(mpg&gt;20) %&gt;% sample_n(size = 5) %&gt;% arrange(desc(mpg))
+print(result)</code></pre>
+<pre><code>##               mpg cyl  disp  hp drat    wt  qsec vs am gear carb
+## Lotus Europa 30.4   4  95.1 113 3.77 1.513 16.90  1  1    5    2
+## Fiat X1-9    27.3   4  79.0  66 4.08 1.935 18.90  1  1    4    1
+## Merc 240D    24.4   4 146.7  62 3.69 3.190 20.00  1  0    4    2
+## Datsun 710   22.8   4 108.0  93 3.85 2.320 18.61  1  1    4    1
+## Mazda RX4    21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4</code></pre>
 </div>
 
    

@@ -34,10 +34,15 @@ if (!require(nycflights13)){
 }
 ```
 
+```{r flight dataset info, message=FALSE, warning=FALSE}
+?flights
+```
+
+
 ```{r}
 head(flights)
 
-View(flights)
+# View(flights)
 
 str(flights)
 ```
@@ -71,35 +76,99 @@ Single variable verbs
 
 - `summarise()` or `summarize()`  creates a new data frame. It returns one row for each combination of grouping variables; if there are no grouping variables, the output will have a single row summarising all observations in the input. It will contain one column for each grouping variable and one column for each of the summary statistics that you have specified.
 
+I need to know filter data, in November, day 3 and carrier is AA. 
 
+```{r filtering data1, message=FALSE, warning=FALSE}
 
-```{r}
+head(filter(flights, month == 11, day==3, carrier == 'AA'))
+```
+An equivalent approach of using `filter()`.
 
+```{r filtering data2, message=FALSE, warning=FALSE}
+
+head(flights[flights$month == 11 & flights$day==3 & flights$carrier == 'AA',])
+```
+
+```{r arrange data1}
+head(arrange(flights, year,month,day,air_time))
+```
+
+```{r arrange data2}
+head(arrange(flights, year,month,day,arr_time))
+```
+notice how the given fields are arranged in ascending order.
+
+```{r arrange data3}
+head(arrange(flights, desc(year),month,day,arr_time))
+```
+Here, I have used `desc()` to arrange specified field in descending order.
+
+```{r selecting data1}
+head(select(flights, carrier))
+```
+
+```{r selecting data2}
+head(select(flights, carrier, arr_time))
+```
+
+```{r selecting data3}
+head(select(flights, carrier, arr_time, month))
+```
+
+```{r distinct data}
+distinct(select(flights, carrier))
+```
+
+```{r mutate data}
+head(
+  mutate(
+    flights, new_col = arr_delay - dep_delay
+  )
+)
 ```
 
 
+```{r summarise data1}
+summarise(flights, avg_air_time = mean(air_time, na.rm=TRUE))
+```
+
+```{r summarise data2}
+summarise(flights, total_time = sum(air_time, na.rm=TRUE))
+```
+
+```{r sample_n data1}
+sample_n(flights, 10)
+```
+
+```{r sample_frac data2}
+sample_frac(flights,0.1)
+```
 
 
+```{r mtcars data1}
+df <- mtcars
+
+result <- arrange(sample_n(
+  filter(
+    df, mpg>20
+  ), size = 5
+), desc(mpg))
+
+print(result)
+```
+
+```{r mtcars data2}
+a <- filter(df, mpg>20)
+b <- sample_n(a, size = 5)
+result <- arrange(b, desc(mpg))
+print(result)
+```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```{r mtcars data3}
+result <- df %>% filter(mpg>20) %>% sample_n(size = 5) %>% arrange(desc(mpg))
+print(result)
+```
 
 
 
