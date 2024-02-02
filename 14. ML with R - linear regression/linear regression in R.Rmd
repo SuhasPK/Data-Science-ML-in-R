@@ -1,0 +1,47 @@
+---
+title: "ML with R: Linear Regression"
+author: "Suhas. P. K"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    default_style: "dark"
+    downcute_theme: "default"
+---
+
+
+```{r setup, include=FALSE}
+## Global options
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+
+```{r datasets}
+url <- "https://archive.ics.uci.edu/ml/datasets/student+Performance"
+destfile <- paste(getwd(), "student_mat.csv", sep="/")
+
+if (!file.exists(destfile)){
+  download.file(url=url, 
+                destfile = destfile)
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
