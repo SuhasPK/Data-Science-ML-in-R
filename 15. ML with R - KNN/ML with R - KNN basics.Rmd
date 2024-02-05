@@ -1,0 +1,151 @@
+---
+title: "ML with R - KNN"
+author: "Suhas P K"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    default_style: "light"
+    downcute_theme: "default"
+    toc: 6
+---
+
+
+```{r setup, include=FALSE}
+## Global options
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+```{r libraries, message=FALSE,warning=FALSE}
+if (!require(ISLR2)){
+  install.packages("ISRL2")
+  library(ISLR2)
+}
+
+if (!require(class)){
+  install.packages("class")
+  library(class)
+}
+
+if (!require(ggplot2)){
+  install.packages("ggplot2")
+  library(ggplot2)
+}
+
+if (!require(ggdark)){
+  install.packages("ggdark")
+  library(ggdark)
+}
+
+if (!require(caret)){
+  install.packages("caret")
+  library(caret)
+}
+
+if (!require(e1071)){
+  install.packages("e1071")
+  library(e1071)
+}
+```
+
+
+```{r loading dataset, warning=FALSE, message=FALSE}
+caravan <- Caravan
+head(caravan)
+```
+```{r dataset structure }
+str(caravan)
+```
+
+```{r dataset summary}
+summary(caravan)
+```
+
+```{r standardising}
+purchase <- caravan[,86]
+standardized.caravan <- scale(caravan[,-86])
+print(var(standardized.caravan[,1]))
+print(var(standardized.caravan[,2]))
+```
+
+```{r train-test split}
+test.index <- 1:1000
+test.data <- standardized.caravan[test.index,]
+test.purchase <- purchase[test.index]
+
+train.data <- standardized.caravan[-test.index,]
+train.purchase <- purchase[-test.index]
+
+```
+
+
+```{r KNN model}
+set.seed(101)
+
+predicted.purchase <- knn(train.data,test.data,train.purchase,
+                          k = 1)
+head(predicted.purchase )
+```
+
+```{r knn error}
+misclass.error <- mean(test.purchase != predicted.purchase)
+misclass.error
+```
+
+```{r choosing k-value }
+predicted.purchase <- NULL
+error.rate <- NULL
+
+for (i in 1:20){
+  set.seed(101)
+  predicted.purchase <- knn(train.data,test.data,train.purchase, k = i)
+  error.rate[i] <- mean(test.purchase != predicted.purchase)
+}
+
+print(error.rate)
+```
+
+
+```{r k values error}
+k.values <- 1:20
+error.df <- data.frame(error.rate,k.values)
+error.df
+```
+
+```{r knn plot}
+ggplot(error.df,
+       aes(k.values,error.rate))+
+  geom_point() + 
+  geom_line(lty='dotted', color='green')+
+  dark_theme_light()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
