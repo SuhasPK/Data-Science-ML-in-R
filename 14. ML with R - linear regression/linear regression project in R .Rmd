@@ -6,44 +6,41 @@ output:
   rmdformats::downcute:
     self_contained: true
     default_style: "dark"
-    downcute_theme: "default"
-    toc: 6 
+    downcute_theme: "chaos"
+    toc: 6
 ---
-
 
 ```{r setup, include=FALSE}
 ## Global options
 knitr::opts_chunk$set(cache = TRUE)
 ```
 
-## Introduction 
+## Introduction
+
 ### Bike Sharing Demand - Forecast use of a city bikeshare system
 
 You are provided hourly rental data spanning two years. For this competition, the training set is comprised of the first 19 days of each month, while the test set is the 20th to the end of the month. You must predict the total count of bikes rented during each hour covered by the test set, using only information available prior to the rental period.
 
 ### Data Fields
 
-- **datetime** - hourly date + timestamp  
-- **season** -  1 = spring, 2 = summer, 3 = fall, 4 = winter 
-- **holiday** - whether the day is considered a holiday
-- **workingday** - whether the day is neither a weekend nor holiday
-- **weather** - 1: Clear, Few clouds, Partly cloudy, Partly cloudy
-2: Mist + Cloudy, Mist + Broken clouds, Mist + Few clouds, Mist
-3: Light Snow, Light Rain + Thunderstorm + Scattered clouds, Light Rain + Scattered clouds
-4: Heavy Rain + Ice Pallets + Thunderstorm + Mist, Snow + Fog 
-- **temp** - temperature in Celsius
-- **atemp** - "feels like" temperature in Celsius
-- **humidity** - relative humidity
-- **windspeed** - wind speed
-- **casual** - number of non-registered user rentals initiated
-- **registered** - number of registered user rentals initiated
-- **count** - number of total rentals
+-   **datetime** - hourly date + timestamp\
+-   **season** - 1 = spring, 2 = summer, 3 = fall, 4 = winter
+-   **holiday** - whether the day is considered a holiday
+-   **workingday** - whether the day is neither a weekend nor holiday
+-   **weather** - 1: Clear, Few clouds, Partly cloudy, Partly cloudy 2: Mist + Cloudy, Mist + Broken clouds, Mist + Few clouds, Mist 3: Light Snow, Light Rain + Thunderstorm + Scattered clouds, Light Rain + Scattered clouds 4: Heavy Rain + Ice Pallets + Thunderstorm + Mist, Snow + Fog
+-   **temp** - temperature in Celsius
+-   **atemp** - "feels like" temperature in Celsius
+-   **humidity** - relative humidity
+-   **windspeed** - wind speed
+-   **casual** - number of non-registered user rentals initiated
+-   **registered** - number of registered user rentals initiated
+-   **count** - number of total rentals
 
 **Let me establish that I am trying to predict `count` from my dataset.**
 
 ### Note:
 
-For this project I will using 'Bike sharing demand - forecast use of a city bikeshare system' from kaggle. Unfortunately, this data is not available in the site. But as part of the course material, all the datasets were already given. So, I will be use the dataset which was given to me. 
+For this project I will using 'Bike sharing demand - forecast use of a city bikeshare system' from kaggle. Unfortunately, this data is not available in the site. But as part of the course material, all the datasets were already given. So, I will be use the dataset which was given to me.
 
 ## Exploratory Data Analysis
 
@@ -88,13 +85,14 @@ sc_plot1 <- ggplot(bike, aes(temp,count)) + geom_point(alpha=0.3,
 sc_plot1
 ```
 
-### 3. Plot `count` vs `datetime` as a scatterplot wihta color gradient based on temperature. 
+### 3. Plot `count` vs `datetime` as a scatterplot wihta color gradient based on temperature.
 
 I will convert the datetime column into POSIXct before plotting.
 
 ```{r POSIXct conversion, warning=FALSE,message=FALSE}
 bike$datetime <- as.POSIXct(bike$datetime)
 ```
+
 ```{r scatter plot2, warning=FALSE,message=FALSE}
 sc_plot2 <- ggplot(bike, aes(datetime, count)) + 
   geom_point( aes(color=temp), alpha = 0.45) + scale_color_continuous(low = '#66b2ff',high='#ff9900') + dark_theme_light()
@@ -103,33 +101,32 @@ sc_plot2
 ```
 
 #### Observation:
+
 A seasonality to the data, for winter and summer. Also that bike rental counts are increasing in general. This may present a problem with using a linear regression model if the data is non-linear. Let's have a quick overview of pros and cons right now of Linear Regression:
 
 Pros:
 
--    Simple to explain.
--    Highly interpretative.
--    Model training and prediction are fast.
--    No tuning is required (excluding regularization).
--    Features don't need scaling.
--    Can perform well with a small number of observations.
--    Well-understood.
+-   Simple to explain.
+-   Highly interpretative.
+-   Model training and prediction are fast.
+-   No tuning is required (excluding regularization).
+-   Features don't need scaling.
+-   Can perform well with a small number of observations.
+-   Well-understood.
 
 Cons:
 
--    Assumes a linear relationship between the features and the response.
--    Performance is (generally) not competitive with the best supervised learning methods due to high bias.
--    Can't automatically learn feature interactions.
+-   Assumes a linear relationship between the features and the response.
+-   Performance is (generally) not competitive with the best supervised learning methods due to high bias.
+-   Can't automatically learn feature interactions.
 
-
-### What is the correlation between `temp` and `count`? 
+### What is the correlation between `temp` and `count`?
 
 ```{r correlation1}
 cor(bike[,c('temp','count')])
 ```
 
 ### Exploring the season data. Creating a boxplot, with the y axis indicating count and the x axis begin a box for each season.
-
 
 ```{r boxplot1}
 b_plot1 <- ggplot(bike, aes(factor(season), count)) +
@@ -147,16 +144,17 @@ b_plot1
 
 #### Observation:
 
-- A line can't capture a non-linear relationship.
-- There are more rentals in winter than in spring.
-- We know of these issues because of the growth of rental count, this isn't due to the actual season!
+-   A line can't capture a non-linear relationship.
+-   There are more rentals in winter than in spring.
+-   We know of these issues because of the growth of rental count, this isn't due to the actual season!
 
-### Feature Engineering
+## Feature Engineering
 
 A lot of times you'll need to use domain knowledge and experience to engineer and create new features. Let's go ahead and engineer some new features from the datetime column.
 
 **Create an "hour" column that takes the hour from the datetime column. You'll probably need to apply some function to the entire datetime column and reassign it. Hint:**
-```
+
+```         
 time.stamp <- bike$datetime[4]
 format(time.stamp, "%H")
 ```
@@ -166,15 +164,12 @@ bike$hour <- sapply(bike$datetime, function(x){format(x,"%H")})
 head(bike)
 ```
 
-
-
-
 Now creating a scatter plot of `count` versus `hour`, with color scale based on temp. Only use bike data where `workingday==1`.
 
 #### Optional Additions:
 
--    Use the additional layer: `scale_color_gradientn(colors=c('color1',color2,etc..))` where the colors argument is a vector gradient of colors you choose, not just high and low.
--    Use `position=position_jitter(w=1, h=0)` inside of `geom_point()` and check out what it does.
+-   Use the additional layer: `scale_color_gradientn(colors=c('color1',color2,etc..))` where the colors argument is a vector gradient of colors you choose, not just high and low.
+-   Use `position=position_jitter(w=1, h=0)` inside of `geom_point()` and check out what it does.
 
 ```{r hour plot1, warning=FALSE,message=FALSE}
 
@@ -200,70 +195,106 @@ combined_plot <- pl1 + pl2
 combined_plot
 ```
 
-
 #### Observation
 
 **Working Days Pattern:**
 
-- Peak activity is observed during the morning at around 8 am.
-- Another peak occurs right after work hours, approximately around 5 pm.
-- There is some noticeable activity during lunchtime.
+-   Peak activity is observed during the morning at around 8 am.
+-   Another peak occurs right after work hours, approximately around 5 pm.
+-   There is some noticeable activity during lunchtime.
 
 **Non-Working Days Pattern:**
 
-- Non-working days exhibit a more steady rise and fall pattern during the afternoon.
-- Unlike working days, there are no distinct peaks corresponding to typical morning and evening commuting times.
+-   Non-working days exhibit a more steady rise and fall pattern during the afternoon.
+-   Unlike working days, there are no distinct peaks corresponding to typical morning and evening commuting times.
 
-
-### Building the model
+## Building the model
 
 Use `lm()` to build a model that predicts count based solely on the temp feature, name it `temp.model`.
 
-```{r ml model}
+```{r ml model1}
 temp.model <- lm(count~temp,bike)
 ```
 
+```{r model summary1}
+summary(temp.model)
+```
 
+The estimated `intercept` is `6.0462` and the `temp` coeffecient is `9.1705`.
 
+## Model Testing
 
+### How many bike rental would we predict if the temperature was $25^{o} C$?
 
+There are two ways to calculate:
 
+1.  Using the values we just got the above.
+2.  Using `predict()` function.
 
+```{r method1}
+intercept <- 6.0462
+slope <- 9.1705
+predict_temp <- 25
+prediction <- predict_temp*slope + intercept
+prediction
+```
 
+```{r medthod2}
+temp.test <- data.frame(temp=c(25))
+predict(temp.model,temp.test)
+```
 
+### Model with many parameters.
 
+Build a model that attempts to predict count based off of the following features : `season`,`holiday`, `workingday`, `weather`, `temp`, `humidity`, `windspeed`, `hour(factor)`.
 
+I will change the data from `hour` column to numeric type. For that I will be using `as.numeric`.
 
+```{r hour numeric}
+bike$hour <- sapply(bike$hour,as.numeric)
+```
 
+Now let me build my mode based on above mentioned fratures.
 
+```{r lm model2}
+model <- lm(count ~ season + holiday + workingday + weather + temp + humidity + windspeed + hour, data = bike)
+```
 
+```{r model summary2}
+summary(model)
+```
 
+### Model Visualization
 
+```{r model plot, fig.width= 10}
+par(mfrow = c(2, 2))
+plot(model)
+```
 
+### Model Metrics
 
+1.  R-squared : It measures the proportion of the response variable's variance that is captured by the model. A higher R-squared indicates a better fit.
 
+```{r R2}
+summary(model)$r.squared
+```
 
+2.  Mean Squared Error (MSE): It measures the average squared difference between the observed and predicted values. Lower MSE values are better.
 
+```{r mse}
+mse <- mean( (model$residuals)^2 )
+mse
+```
 
+3.  Root mean square error (RMSE): It is the square root of MSE and provides the error in the original unit of the response variable.
 
+```{r rmse}
+rmse <- sqrt(mse)
+rmse
+```
 
+## Final remarks
 
+-   A linear model like the one we chose which uses OLS won't be able to take into account seasonality of our data, and will get thrown off by the growth in our dataset, accidentally attributing it towards the winter season, instead of realizing its just overall demand growing!
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+-   This sort of model doesn't work well given our seasonal and time series data.
