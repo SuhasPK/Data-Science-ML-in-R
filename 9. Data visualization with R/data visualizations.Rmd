@@ -1,0 +1,131 @@
+---
+title: "Data Visualization with R"
+subtitle: "Grammar of Graphics `ggplot2`"
+author: "Suhas. P. K"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    default_style: "dark"
+    downcute_theme: "chaos"
+    toc: 6
+---
+
+
+```{r setup, include=FALSE}
+## Global options
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+```{r libraries,message=FALSE,warning=FALSE}
+if(!require(ggplot2)){
+  install.packages("ggplot2")
+  library(ggplot2)
+}
+
+if(!require(ggplot2movies)){
+  install.packages("ggplot2movies")
+  library(ggplot2movies)
+}
+
+if(!require(ggdark)){
+  install.packages("ggdark")
+  library(ggdark)
+}
+```
+
+## Resources and Cheat sheet
+- [`ggplot2 Cheat sheet`](https://rstudio.github.io/cheatsheets/html/data-visualization.html)
+- [`ggplot2`](https://ggplot2.tidyverse.org/)
+
+## Movies Dataset
+```{r dataset}
+head(movies)
+```
+
+
+## Histograms
+
+```{r histogram1, warning=FALSE,message=FALSE}
+hist.plot1 <- ggplot(movies, aes(x = rating)) # data and aesthetics
+hist.plot1 <- hist.plot1 + geom_histogram() # geom-etry
+hist.plot1
+```
+
+```{r histogram2}
+hist.plot2 <- ggplot(movies, aes(x = rating)) # data and aesthetics
+hist.plot2 <- hist.plot2 + geom_histogram(binwidth = 0.1, 
+                                          color = 'red', 
+                                          fill = 'pink',
+                                          alpha = 0.4) # geom-etry
+hist.plot2
+```
+
+```{r histogram3}
+hist.plot3 <- ggplot(movies, aes(x = rating)) # data and aesthetics
+hist.plot3 <- hist.plot3 + geom_histogram(binwidth = 0.1, 
+                                          color = 'red', 
+                                          fill = 'pink',
+                                          alpha = 0.4) # geom-etry
+hist.plot3 <- hist.plot3 +
+  xlab('Movie Rating') +    # X-axis label
+  ylab('Count') +           # Y-axis label 
+  ggtitle("Histogram")      # Plot title  
+
+hist.plot3
+  
+```
+
+
+
+```{r histogram4}
+hist.plot4 <- ggplot(movies, aes(x = rating)) # data and aesthetics
+hist.plot4 <- hist.plot4 + geom_histogram(binwidth = 0.1, 
+                                          color = 'red', 
+                                          fill = 'pink',
+                                          alpha = 0.4) # geom-etry
+hist.plot4 <- hist.plot4 +
+  xlab('Movie Rating') +    # X-axis label
+  ylab('Count') +           # Y-axis label 
+  ggtitle("Histogram")      # Plot title  
+
+hist.plot4 <- hist.plot4 + dark_theme_light() #dark theme (ggdark library)
+
+hist.plot4
+  
+```
+
+
+
+
+```{r histogram5}
+hist.plot5 <- ggplot(movies, aes(x = rating)) # data and aesthetics
+hist.plot5 <- hist.plot5 + geom_histogram(binwidth = 0.1, aes(fill=after_stat(count))) # geom-etry, observe: `after_stat(count)`
+hist.plot5 <- hist.plot5 +
+  xlab('Movie Rating') +    # X-axis label
+  ylab('Count') +           # Y-axis label 
+  ggtitle("Histogram")      # Plot title  
+
+hist.plot5 <- hist.plot5 + dark_theme_light()
+hist.plot5
+  
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
