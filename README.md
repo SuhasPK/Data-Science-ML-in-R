@@ -14,7 +14,7 @@ The repository is structured in the same way as the bootcamp course is structure
 This way I can generate all `html` files and also publish them in [Rpubs](https://rpubs.com/suhasPK).
 
 | Sl no. | Folder name                                                                                                                  | Description |
-|--------|------------------------------------------------------------------------------------------------------------------------------|-------------|
+|----------|----------------------------------------------------|----------|
 | 1\.    | [Introduction to R basics](https://github.com/SuhasPK/Data-Science-ML-in-R/tree/main/1.%20Introduction%20to%20R%20basics)    |             |
 | 2\.    | R matrices                                                                                                                   |             |
 | 3\.    | R data frames                                                                                                                |             |
@@ -28,7 +28,7 @@ This way I can generate all `html` files and also publish them in [Rpubs](https:
 | 11\.   | Interactive visualizations with Plotly                                                                                       |             |
 | 12\.   | [Capstone Data Project](https://github.com/SuhasPK/Data-Science-ML-in-R/tree/main/20.%20ML%20with%20R%20-%20Neural%20Nets)   |             |
 | 13\.   | Introduction to ML with R                                                                                                    |             |
-| 14\.   | ML with R - Linear Regression                                                                                                |             |
+| 14\.   | [ML with R - Linear Regression](https://github.com/SuhasPK/Data-Science-ML-in-R/tree/main/14.%20ML%20with%20R%20-%20linear%20regression)                                                                                                |             |
 | 15\.   | ML with R - KNN                                                                                                              |             |
 | 16\.   | ML with R - Decision tree and Random forest                                                                                  |             |
 | 17\.   | ML with R - Support Vector Machines                                                                                          |             |
