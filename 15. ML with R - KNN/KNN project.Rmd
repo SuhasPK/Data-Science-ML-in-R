@@ -1,0 +1,293 @@
+---
+title: "ML with R - KNN Project"
+author: "Suhas. P. K"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    default_style: "dark"
+    downcute_theme: "chaos"
+    toc: 6
+---
+
+
+```{r setup, include=FALSE}
+## Global options
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+## K Nearest Neighbour Project
+
+Since KNN is such a simple algorithm, we will just use this "Project" as a simple exercise to test your understanding of the implementation of KNN. 
+
+## `Iris`  Dataset
+
+We'll use the famous [iris](https://en.wikipedia.org/wiki/Iris_flower_data_set) data set for this project. It's a small data set with flower features that can be used to attempt to predict the species of an iris flower.
+
+```{r libraries, message=FALSE,warning=FALSE}
+if(!require(ggpubr)){
+  install.packages("ggpubr")
+  library(ggpubr)
+}
+
+if(!require(ISLR2)){
+  install.packages("ISLR2")
+  library(ISLR2)
+}
+
+if(!require(ggplot2)){
+  install.packages("ggplot2")
+  library(ggplot2)
+}
+
+if(!require(ggdark)){
+  install.packages("ggdark")
+  library(ggdark)
+}
+
+if(!require(caTools)){
+  install.packages("caTools")
+  library(caTools)
+}
+
+if(!require(class)){
+  install.packages("class")
+  library(class)
+}
+
+if(!require(plotly)){
+  install.packages("plotly")
+  library(plotly)
+}
+
+
+
+
+```
+
+### Loading `iris` dataset
+```{r loading dataset, warning=FALSE,message=FALSE}
+df <- iris
+head(df)
+```
+
+- Dataset structure
+
+```{r dataset structure}
+str(df)
+```
+
+- Dataset summary
+
+```{r dataset summary, warning=FALSE,message=FALSE}
+summary(df)
+```
+
+### Standardize data
+
+- The iris data set has all its features in the same order of magnitude, but its good practice (especially with KNN) to standardize features in your data.
+
+**Use `scale()` to standardize the feature columns of the iris dataset. Set this standardized version of the data as a new variable.**
+
+```{r standardize data}
+standard.feature <- scale( df[1:4])
+```
+
+- Checking that the scaling worked by checking the variance of one of the new columns.
+
+```{r variance}
+var(standard.feature[,1])
+```
+
+- Join the standardized data with the response/target/label column (the column with the species names.
+
+```{r final dataset, warning=FALSE,message=FALSE}
+final.data <- cbind(standard.feature,df[5])
+head(final.data)
+```
+
+## Train-test split
+
+```{r test-train split, message=FALSE, warning=FALSE}
+set.seed(101)
+
+sample <- sample.split(final.data$Species, SplitRatio = 0.70)
+train <- subset(final.data, sample = TRUE)
+test <- subset(final.data, sample = FALSE)
+```
+
+
+## Build a KNN model.
+
+```{r knn plotting}
+# Fit KNN model
+k <- 10
+knn_model <- knn(train[, 1:2], test[, 1:2], train[, 5], k = k)
+
+# Combine predictions with test data
+test_with_pred <- cbind(test, Predicted_Species = knn_model)
+
+# Plotting using ggplot2 and ggpubr
+ggplot(test_with_pred, aes(x = Sepal.Width, y = Sepal.Length, color = Predicted_Species)) +
+  geom_point(size = 3, alpha = 0.9) +
+  stat_ellipse(aes(fill = Predicted_Species, color = Predicted_Species), geom = "polygon", alpha = 0.4,color = "white") +
+  labs(title = paste("KNN Cluster Probability Ellipses (k = ", k, ")", sep = ""),
+       x = "Sepal.Length", y = "Sepal.Width", fill = "Predicted Species", color = "Predicted Species") +
+  scale_color_manual(values = c("setosa" = "blue", "versicolor" = "green", "virginica" = "red")) +
+  scale_fill_manual(values = c("setosa" = "lightblue", "versicolor" = "lightgreen", "virginica" = "lightcoral")) +
+  dark_theme_light()
+
+
+```
+
+
+```{r}
+
+
+# Fit KNN model
+k <- 5
+knn_model <- knn(train[, 1:2], test[, 1:2], train[, 5], k = k)
+
+# Combine predictions with test data
+test_with_pred <- cbind(test, Predicted_Species = knn_model)
+
+# Plotting using ggplot2 and ggpubr
+knn.plt <- ggplot() +
+  geom_point(data = train, aes(x = Sepal.Width, y = Sepal.Length, color = "Train"), size = 3, alpha = 0.7) +
+  geom_point(data = test_with_pred, aes(x = Sepal.Width, y = Sepal.Length, color = Predicted_Species), size = 3, alpha = 0.7) +
+  stat_ellipse(data = train, aes(x = Sepal.Width, y = Sepal.Length, fill = "Train"), geom = "polygon", alpha = 0.2, color = "black") +
+  stat_ellipse(data = test_with_pred, aes(x = Sepal.Width, y = Sepal.Length, fill = Predicted_Species), geom = "polygon", alpha = 0.2, color = "black") +
+  labs(title = paste("KNN Cluster Probability Ellipses (k =", k, ")", sep = ""),
+       x = "Sepal.Length", y = "Sepal.Width", fill = "Dataset") +
+  scale_color_manual(values = c("Train" = "blue", "setosa" = "green", "versicolor" = "yellow", "virginica" = "red")) +
+  scale_fill_manual(values = c("Train" = "lightblue", "setosa" = "lightgreen", "versicolor" = "lightcoral", "virginica" = "lightyellow")) +
+  dark_theme_light()
+
+ggplty <- ggplotly(knn.plt) 
+
+ggplty
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
