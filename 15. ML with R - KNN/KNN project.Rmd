@@ -109,17 +109,28 @@ head(final.data)
 ## Train-test split
 
 ```{r test-train split, message=FALSE, warning=FALSE}
-set.seed(101)
-
-sample <- sample.split(final.data$Species, SplitRatio = 0.70)
+set.seed(1243)
+sample <- sample.split(final.data$Species, SplitRatio = 0.75)
 train <- subset(final.data, sample = TRUE)
 test <- subset(final.data, sample = FALSE)
+```
+
+```{r}
+print(length(train$Species))
+k <- 10
+
+
+knn_model <- knn(train[, 1:2], test[, 1:2], train[, 5], k = k)
+
+# Combine predictions with test data
+test_with_pred <- cbind(test, Predicted_Species = knn_model)
+print(length(test_with_pred$Predicted_Species))
 ```
 
 
 ## Build a KNN model.
 
-```{r knn plotting}
+```{r knn plot1}
 # Fit KNN model
 k <- 10
 knn_model <- knn(train[, 1:2], test[, 1:2], train[, 5], k = k)
@@ -141,37 +152,58 @@ ggplot(test_with_pred, aes(x = Sepal.Width, y = Sepal.Length, color = Predicted_
 ```
 
 
-```{r}
-
-
+```{r knn plot2}
 # Fit KNN model
-k <- 5
-knn_model <- knn(train[, 1:2], test[, 1:2], train[, 5], k = k)
-
+k <- 10
+knn_model <- knn(train[, 1:4], test[, 1:4], train[, 5], k = k)
 # Combine predictions with test data
 test_with_pred <- cbind(test, Predicted_Species = knn_model)
 
 # Plotting using ggplot2 and ggpubr
-knn.plt <- ggplot() +
-  geom_point(data = train, aes(x = Sepal.Width, y = Sepal.Length, color = "Train"), size = 3, alpha = 0.7) +
-  geom_point(data = test_with_pred, aes(x = Sepal.Width, y = Sepal.Length, color = Predicted_Species), size = 3, alpha = 0.7) +
-  stat_ellipse(data = train, aes(x = Sepal.Width, y = Sepal.Length, fill = "Train"), geom = "polygon", alpha = 0.2, color = "black") +
-  stat_ellipse(data = test_with_pred, aes(x = Sepal.Width, y = Sepal.Length, fill = Predicted_Species), geom = "polygon", alpha = 0.2, color = "black") +
+ggplot() +
+  geom_point(data = train, aes(x = Sepal.Width, y = Sepal.Length, shape = "Train"), size = 3, alpha = 0.7, color = "yellow") +
+  geom_point(data = test_with_pred, aes(x = Sepal.Width, y = Sepal.Length, shape = "Test", color = Predicted_Species), size = 3, alpha = 0.7) +
+  stat_ellipse(data = test_with_pred, aes(x = Sepal.Width, y = Sepal.Length, fill = Predicted_Species), 
+               geom = "polygon", alpha = 0.4, color = "white") +
   labs(title = paste("KNN Cluster Probability Ellipses (k =", k, ")", sep = ""),
-       x = "Sepal.Length", y = "Sepal.Width", fill = "Dataset") +
-  scale_color_manual(values = c("Train" = "blue", "setosa" = "green", "versicolor" = "yellow", "virginica" = "red")) +
-  scale_fill_manual(values = c("Train" = "lightblue", "setosa" = "lightgreen", "versicolor" = "lightcoral", "virginica" = "lightyellow")) +
+       x = "Sepal.Length", y = "Sepal.Width", fill = "Predicted Species", color = "Predicted Species") +
+  scale_shape_manual(values = c("Train" = 17, "Test" = 16)) +  # 17 represents triangle, 16 represents circle
+  scale_color_manual(values = c("setosa" = "blue", "versicolor" = "green", "virginica" = "red")) +
+  scale_fill_manual(values = c("setosa" = "lightblue", "versicolor" = "lightgreen", "virginica" = "lightcoral")) +
   dark_theme_light()
 
-ggplty <- ggplotly(knn.plt) 
-
-ggplty
 
 ```
 
+```{r}
+print(length(train$Species))
+print(length(test_with_pred$Predicted_Species))
+```
 
 
+## Error Rate
 
+```{r better K value}
+predicted.species <- NULL
+error.rate <- NULL
+
+for(i in 1:10){
+    set.seed(101)
+    predicted.species <- knn(train[1:4],test[1:4],train$Species,k=i)
+    error.rate[i] <- mean(test$Species != predicted.species)
+}
+```
+
+```{r knn error}
+k.values <- 1:50
+error.df <- data.frame(error.rate,k.values)
+```
+
+
+```{r error plt}
+pl <- ggplot(error.df,aes(x=k.values,y=error.rate)) + geom_point()
+pl + geom_line(lty="dotted",color='green') + dark_theme_gray()
+```
 
 
 
